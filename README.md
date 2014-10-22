@@ -4,7 +4,10 @@ linklander-ui
 UI for Link Lander
 
 
-GWT Frontend Implementierung
+Vaadin Frontend Implementation
 
-GWT Eclipse Plugin für Luna
-https://dl.google.com/eclipse/plugin/4.4
+Vaadin Eclipse Plugin for Luna
+https://vaadin.com/eclipse
+
+Note: Use Luna 4.4.0, Vaadin seems to have a Bug with Luna 4.4 SR1
+@see https://bugs.eclipse.org/bugs/show_bug.cgi?id=445122
