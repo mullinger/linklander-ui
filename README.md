@@ -14,3 +14,16 @@ Note: Use Luna 4.4.0, Vaadin seems to have a Bug with Luna 4.4 SR1
 
 Build: mvn clean install<br>
 Run on Jetty: mvn jetty:run
+
+Installation
+--------------
+
+- Eclipse EE im System entpacken, starten, workspace anlegen
+- Tomee Plus 1.7.1 irgendwo im System entpacken
+- Tomee als Server integrieren
+- linklander-ui Git Code auschecken in neuen Ordner
+- Projekt als Maven Projekt in Eclipse importieren
+- linklander-ui: mvn install
+- linklander-ui: publish auf dem Tomee
+- Eclipse: Auf Projekt im Package Explorer: refresh
+- Browser: http://localhost:8080/linklander-ui/
