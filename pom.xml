@@ -128,12 +128,11 @@
 			<type>test-jar</type>
 		</dependency>
 
-		<!-- CDI - TODO -->
+		<!-- CDI  -->
 		<dependency>
-			<groupId>org.apache.openejb</groupId>
-			<artifactId>tomee-embedded</artifactId>
-			<version>1.7.1</version>
-			<scope>provided</scope>
+			<groupId>javax.enterprise</groupId>
+			<artifactId>cdi-api</artifactId>
+			<version>1.2</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -147,6 +146,14 @@
 			<artifactId>log4j-core</artifactId>
 			<version>2.1</version>
 		</dependency>
+
+		<!-- Commons -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
