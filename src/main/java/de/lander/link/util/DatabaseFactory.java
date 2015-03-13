@@ -26,9 +26,26 @@ public class DatabaseFactory {
 	private static final String NEO4J_STORE_DIRECTORY = "de.lander.storedir";
 	private static final String DB_PROPERTY_FILE = "~/db.properties";
 
+	/**
+	 * Singleton of graph database.
+	 * Must not be created multiple times because only one process can read from the neo4j database file
+	 * at the same time
+	 */
+	private static GraphDatabaseService databaseSingleton = null;
+	
 	@Produces
 	public GraphDatabaseService createDatabase(
 			final InjectionPoint injectionPoint) {
+		
+		if (databaseSingleton == null) {
+			databaseSingleton = createSingleton(injectionPoint);
+		} 
+
+		return databaseSingleton;
+		
+	}
+
+	private GraphDatabaseService createSingleton(final InjectionPoint injectionPoint) {
 		LOGGER.debug("annotated " + injectionPoint.getAnnotated());
 		Annotated annotated = injectionPoint.getAnnotated();
 		LOGGER.debug("annotated.annotations " + annotated.getAnnotations());
@@ -40,7 +57,7 @@ public class DatabaseFactory {
 		LOGGER.debug("type " + injectionPoint.getType());
 		LOGGER.debug("isDelegate " + injectionPoint.isDelegate());
 		LOGGER.debug("isTransient " + injectionPoint.isTransient());
-
+		
 		Bean<?> bean = injectionPoint.getBean();
 		LOGGER.debug("bean.beanClass " + bean.getBeanClass());
 		LOGGER.debug("bean.injectionPoints " + bean.getInjectionPoints());
@@ -49,15 +66,15 @@ public class DatabaseFactory {
 		LOGGER.debug("bean.scope " + bean.getScope());
 		LOGGER.debug("bean.stereotypes " + bean.getStereotypes());
 		LOGGER.debug("bean.types " + bean.getTypes());
-
+		
 //		String storeDir = PropertiesLoader.readProperty(DB_PROPERTY_FILE,
 //				NEO4J_STORE_DIRECTORY);
 		
 		String storeDir = "lander.neo4j.data";
 		return new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder(storeDir)
-				.setConfig(GraphDatabaseSettings.nodestore_mapped_memory_size,
-						"10M")
+		.newEmbeddedDatabaseBuilder(storeDir)
+		.setConfig(GraphDatabaseSettings.nodestore_mapped_memory_size,
+				"10M")
 				.setConfig(GraphDatabaseSettings.string_block_size, "60")
 				.setConfig(GraphDatabaseSettings.array_block_size, "300")
 				.newGraphDatabase();
