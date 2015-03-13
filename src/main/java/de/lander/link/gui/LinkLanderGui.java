@@ -56,7 +56,9 @@ public class LinkLanderGui extends UI {
 		input.setInputPrompt("type to land a link...");
 		input.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
-		links.addContainerProperty("links", String.class, null);
+		links.addContainerProperty("name", String.class, null);
+		links.addContainerProperty("url", String.class, null);
+		
 		links.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		links.setFooterVisible(false);
 
@@ -91,7 +93,7 @@ public class LinkLanderGui extends UI {
 
 	private Object[] convert(Link link) {
 //		return new Object[] { link.getTitle(), link.getName(), link.getUrl(), link.getClicks() };
-		return new Object[] { link.getUrl()};
+		return new Object[] { link.getName(), link.getUrl()};
 	}
 
 	private void buildLayout() {
