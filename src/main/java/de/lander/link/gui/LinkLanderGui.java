@@ -11,8 +11,10 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.cdi.CDIUI;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.TextField;
@@ -57,7 +59,8 @@ public class LinkLanderGui extends UI {
 		input.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
 		links.addContainerProperty("name", String.class, null);
-		links.addContainerProperty("url", String.class, null);
+		links.addContainerProperty("link", Component.class, null);
+		
 		
 		links.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		links.setFooterVisible(false);
@@ -92,8 +95,12 @@ public class LinkLanderGui extends UI {
 	}
 
 	private Object[] convert(Link link) {
-//		return new Object[] { link.getTitle(), link.getName(), link.getUrl(), link.getClicks() };
-		return new Object[] { link.getName(), link.getUrl()};
+		// Create a Vaading HTTP clickable link
+		com.vaadin.ui.Link externalLink = new com.vaadin.ui.Link(link.getUrl(), new ExternalResource(link.getUrl()));
+		externalLink.setTargetName("_blank"); // Open in new Tab
+
+		// Create the table row object array
+		return new Object[] { link.getName(), externalLink};
 	}
 
 	private void buildLayout() {
