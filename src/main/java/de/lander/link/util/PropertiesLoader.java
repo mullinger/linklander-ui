@@ -21,6 +21,7 @@ public final class PropertiesLoader {
 	 */
 	public static String readProperty(final String propertyFile,
 			final String propertyToRead) {
+		
 		final Properties properties = new Properties();
 		try {
 			properties.load(PropertiesLoader.class.getClassLoader()

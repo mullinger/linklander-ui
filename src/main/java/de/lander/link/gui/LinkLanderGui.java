@@ -1,15 +1,17 @@
 package de.lander.link.gui;
 
-import java.util.Random;
+import java.util.List;
 
-import javax.servlet.annotation.WebServlet;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.annotations.VaadinServletConfiguration;
+import com.vaadin.cdi.CDIUI;
 import com.vaadin.event.FieldEvents.TextChangeEvent;
 import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.Table.ColumnHeaderMode;
@@ -17,6 +19,10 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import de.lander.persistence.daos.PersistenceGateway;
+import de.lander.persistence.entities.Link;
+
+@CDIUI("linklander-ui")
 @Theme("mytheme")
 @SuppressWarnings("serial")
 public class LinkLanderGui extends UI {
@@ -25,9 +31,21 @@ public class LinkLanderGui extends UI {
 	private Table links;
 	private TextField input;
 
-	@WebServlet(value = "/*", asyncSupported = true)
-	@VaadinServletConfiguration(productionMode = false, ui = LinkLanderGui.class, widgetset = "de.lander.link.gui.AppWidgetSet")
-	public static class Servlet extends VaadinServlet {
+	@Inject
+	private Logger LOGGER;
+
+	@Inject
+	private PersistenceGateway persistenceGatewayImpl;
+
+	// @WebServlet(value = "/*", asyncSupported = true)
+	// @VaadinServletConfiguration(productionMode = false, ui =
+	// LinkLanderGui.class, widgetset = "de.lander.link.gui.AppWidgetSet")
+	// public static class Servlet extends VaadinServlet {
+	// }
+
+	@PostConstruct
+	public void postConstruct() {
+		persistenceGatewayImpl.addLink("Name", "http://name.de", "name");
 	}
 
 	@Override
@@ -43,7 +61,7 @@ public class LinkLanderGui extends UI {
 		links.setFooterVisible(false);
 
 		input.addTextChangeListener(new TextChangeListener() {
-			
+
 			@Override
 			public void textChange(final TextChangeEvent event) {
 				if (event.getText().equals("")) {
@@ -59,11 +77,21 @@ public class LinkLanderGui extends UI {
 
 	}
 
-	private void loadLinks(final String host) {
+	private void loadLinks(final String searchText) {
 		links.removeAllItems();
-		for (int i = 0; i < new Random().nextInt(43); i++) {
-			links.addItem(new Object[] { "http://www." + host + i + ".com" }, i);
+
+		List<Link> searchLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, searchText);
+		LOGGER.error("Found " + searchLinks.size() + " links");
+
+		for (int i = 0; i < searchLinks.size(); i++) {
+			LOGGER.error("Found link " + i + " " + searchLinks.get(i).toString());
+			links.addItem(convert(searchLinks.get(i)), i);
 		}
+	}
+
+	private Object[] convert(Link link) {
+//		return new Object[] { link.getTitle(), link.getName(), link.getUrl(), link.getClicks() };
+		return new Object[] { link.getUrl()};
 	}
 
 	private void buildLayout() {

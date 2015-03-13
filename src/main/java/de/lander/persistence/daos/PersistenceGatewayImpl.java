@@ -62,8 +62,8 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	 */
 	private void createIndexesAndConstraints() {
 		// NOTE: contraints add also an index
-		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Link.LABEL
-				+ ") ASSERT link." + Link.NAME + " IS UNIQUE");
+//		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Link.LABEL
+//				+ ") ASSERT link." + Link.NAME + " IS UNIQUE");
 		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Tag.LABEL
 				+ ") ASSERT link." + Tag.NAME + " IS UNIQUE");
 		this.cypher.execute("CREATE INDEX ON :" + Link.LABEL + "("

@@ -24,7 +24,7 @@ public class DatabaseFactory {
 	public static transient Logger LOGGER;
 
 	private static final String NEO4J_STORE_DIRECTORY = "de.lander.storedir";
-	private static final String DB_PROPERTY_FILE = "db.properties";
+	private static final String DB_PROPERTY_FILE = "~/db.properties";
 
 	@Produces
 	public GraphDatabaseService createDatabase(
@@ -50,8 +50,10 @@ public class DatabaseFactory {
 		LOGGER.debug("bean.stereotypes " + bean.getStereotypes());
 		LOGGER.debug("bean.types " + bean.getTypes());
 
-		String storeDir = PropertiesLoader.readProperty(DB_PROPERTY_FILE,
-				NEO4J_STORE_DIRECTORY);
+//		String storeDir = PropertiesLoader.readProperty(DB_PROPERTY_FILE,
+//				NEO4J_STORE_DIRECTORY);
+		
+		String storeDir = "lander.neo4j.data";
 		return new GraphDatabaseFactory()
 				.newEmbeddedDatabaseBuilder(storeDir)
 				.setConfig(GraphDatabaseSettings.nodestore_mapped_memory_size,
