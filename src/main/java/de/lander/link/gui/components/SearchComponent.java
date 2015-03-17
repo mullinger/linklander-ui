@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.cdi.UIScoped;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -19,6 +20,7 @@ import com.vaadin.ui.Table.ColumnHeaderMode;
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
 
+@UIScoped
 public class SearchComponent extends CustomComponent {
 
 	private static final long serialVersionUID = 242479147429347833L;
@@ -35,9 +37,9 @@ public class SearchComponent extends CustomComponent {
 
 	@PostConstruct
 	public void postConstruct() {
-		 persistenceGatewayImpl.addLink("Name", "http://name.de", "name");
+		persistenceGatewayImpl.addLink("Name", "http://name.de", "name");
 	}
-	
+
 	public SearchComponent() {
 		buildLayout();
 
@@ -111,5 +113,3 @@ public class SearchComponent extends CustomComponent {
 		setCompositionRoot(verticalLayout);
 	}
 }
-
-
