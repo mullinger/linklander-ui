@@ -47,6 +47,7 @@ public class SearchComponent extends CustomComponent {
 		input.setInputPrompt("type to land a link...");
 		input.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
+		links.addContainerProperty("id", String.class, null);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
 
@@ -83,7 +84,7 @@ public class SearchComponent extends CustomComponent {
 		externalLink.setTargetName("_blank"); // Open in new Tab
 
 		// Create the table row object array
-		return new Object[] { link.getName(), externalLink };
+		return new Object[] { link.getUuid(), link.getName(), externalLink };
 	}
 
 	private void buildLayout() {

@@ -20,25 +20,25 @@ public interface PersistenceGateway {
 	 * Supported Link Types for CRUD operations
 	 */
 	enum LinkProperty {
-		NAME, URL,CLICK_COUNT,SCORE;
+		NAME, URL, CLICK_COUNT, SCORE;
 	}
 
 	/**
 	 * Supported Tag Types CRUD operations
 	 */
 	enum TagProperty {
-		NAME,CLICK_COUNT;
+		NAME, CLICK_COUNT;
 	}
-	
+
 	/**
-	 * The mode for deletions 
+	 * The mode for deletions
 	 */
 	enum DeletionMode {
 		/**
 		 * The value of the property has to match exactly
 		 */
-		EXACT, 
-		
+		EXACT,
+
 		/**
 		 * The value of the property can also be a substring
 		 */
@@ -67,15 +67,15 @@ public interface PersistenceGateway {
 	 * @param property
 	 *            the {@link LinkProperty} to update (MANDATORY)
 	 * @param propertyValue
-	 *            the value to search for. This value has to match exactly (MANDATORY)
+	 *            the value to search for. This value has to match exactly
+	 *            (MANDATORY)
 	 * @param newPropertyValue
 	 *            the value to set the found property of the link (MANDATORY)
 	 * 
 	 * @throws {@link IllegalArgumentException} if no link with the property was
 	 *         found
 	 */
-	void updateLink(LinkProperty property, String propertyValue,
-			String newPropertyValue);
+	void updateLink(LinkProperty property, String propertyValue, String newPropertyValue);
 
 	/**
 	 * Deletes the links matching the given property<br>
@@ -85,7 +85,8 @@ public interface PersistenceGateway {
 	 *            the property of the link (MANDATORY)
 	 * @param propertyValue
 	 *            the value of the property (MANDATORY)
-	 * @param mode the mode of deletion
+	 * @param mode
+	 *            the mode of deletion
 	 */
 	void deleteLink(LinkProperty property, String propertyValue, DeletionMode mode);
 
@@ -109,14 +110,14 @@ public interface PersistenceGateway {
 	 * @param property
 	 *            the property to update (MANDATORY)
 	 * @param propertyValue
-	 *            the current property value. This value has to match exactly (MANDATORY)
+	 *            the current property value. This value has to match exactly
+	 *            (MANDATORY)
 	 * @param newPropertyValue
 	 *            the new property value (MANDATORY)
 	 * @throws {@link IllegalArgumentException} if no tag with the property was
 	 *         found
 	 */
-	void updateTag(TagProperty property, String propertyValue,
-			String newPropertyValue);
+	void updateTag(TagProperty property, String propertyValue, String newPropertyValue);
 
 	/**
 	 * Deletes all the tags with the given property
@@ -125,7 +126,8 @@ public interface PersistenceGateway {
 	 *            the property (MANDATORY)
 	 * @param propertyValue
 	 *            the value of the property (MANDATORY)
-	 * @param mode the mode of deletion           
+	 * @param mode
+	 *            the mode of deletion
 	 */
 	void deleteTag(TagProperty property, String propertyValue, DeletionMode mode);
 
@@ -134,8 +136,8 @@ public interface PersistenceGateway {
 	// /////////////
 	/**
 	 * Tags a link with the given linkName with a tag<br>
-	 * NOTE: the parameters do not have to match exactly. They
-	 * can also be substrings of existing names of tag or links
+	 * NOTE: the parameters do not have to match exactly. They can also be
+	 * substrings of existing names of tag or links
 	 * 
 	 * @param linkName
 	 *            the name of the link to tag (MANDATORY)
@@ -181,7 +183,6 @@ public interface PersistenceGateway {
 	 * @return the tags or an empty list of tags if no such link was found
 	 */
 	List<Tag> getTagsForLink(final String linkName);
-	
 
 	// /////////////
 	// CLICKS
@@ -189,25 +190,32 @@ public interface PersistenceGateway {
 	/**
 	 * Increments the link click count
 	 * 
-	 * @param linkName the name of the link
-	 * @throws {@link IllegalArgumentException} if there is no link with the given name
+	 * @param linkName
+	 *            the name of the link
+	 * @throws {@link IllegalArgumentException} if there is no link with the
+	 *         given name
 	 */
 	void incrementLinkClick(final String linkName);
-	
+
 	/**
 	 * Updates the score of the link
 	 * 
-	 * @param linkName the name of the link
-	 * @param newScore the score to update
-	 * @throws {@link IllegalArgumentException} if there is no link with the given name
+	 * @param linkName
+	 *            the name of the link
+	 * @param newScore
+	 *            the score to update
+	 * @throws {@link IllegalArgumentException} if there is no link with the
+	 *         given name
 	 */
 	void updateLinkScore(final String linkName, final double newScore);
-	
+
 	/**
 	 * Increments the tag click count
 	 * 
-	 * @param tagName the name of the tag
-	 * @throws {@link IllegalArgumentException} if there is no tag with the given name
+	 * @param tagName
+	 *            the name of the tag
+	 * @throws {@link IllegalArgumentException} if there is no tag with the
+	 *         given name
 	 */
 	void incrementTagClick(final String tagName);
 

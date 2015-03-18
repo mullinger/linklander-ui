@@ -5,6 +5,7 @@ package de.lander.persistence.daos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -64,10 +65,10 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		// NOTE: contraints add also an index
 //		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Link.LABEL
 //				+ ") ASSERT link." + Link.NAME + " IS UNIQUE");
-		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Tag.LABEL
-				+ ") ASSERT link." + Tag.NAME + " IS UNIQUE");
-		this.cypher.execute("CREATE INDEX ON :" + Link.LABEL + "("
-				+ LinkProperty.URL + ")");
+//		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Tag.LABEL
+//				+ ") ASSERT link." + Tag.NAME + " IS UNIQUE");
+//		this.cypher.execute("CREATE INDEX ON :" + Link.LABEL + "("
+//				+ LinkProperty.URL + ")");
 	}
 
 	@Override
@@ -85,6 +86,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			node.setProperty(Link.TITLE, title);
 			node.setProperty(Link.CLICK_COUNT, 0);
 			node.setProperty(Link.SCORE, 0);
+			node.setProperty(Link.UUID, UUID.randomUUID().toString());
 			tx.success();
 			LOGGER.debug("Added link: name={}, url={}, title={}", new Object[] {
 					name, url, title });
@@ -196,6 +198,28 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		}
 	}
 
+	
+//	/**
+//	 * 
+//	 * @param uuid
+//	 * @return
+//	 */
+//	public Link getLinkByUUID(String uuid) {
+//		String sql = new StringBuilder(128).append("MATCH (link:")
+//				.append(Link.LABEL).append(") WHERE link.uuid  =~ '")
+//				.append(uuid).append("'").append(" RETURN link")
+//				.toString();
+//		
+//		ExecutionResult execute = null;
+//		try (Transaction tx = this.graphDb.beginTx()) {
+//			
+//			Iterator<Node> links = execute.columnAs("link");
+//			while(links.hasNext()) {
+//				Node link = links.next();
+//			}
+//		}
+//	}
+	
 	@Override
 	public List<Link> searchLinks(final LinkProperty property,
 			final String propertyValue) {
@@ -236,8 +260,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 						.getProperty(Link.CLICK_COUNT)));
 				double score = Double.valueOf(String.valueOf(link
 						.getProperty(Link.SCORE)));
+				String uuid = String.valueOf(link.getProperty(Link.UUID));
 
-				retrievedLinks.add(new Link(name, title, url, clicks, score));
+				retrievedLinks.add(new Link(name, title, url, clicks, score, uuid));
 			}
 		}
 

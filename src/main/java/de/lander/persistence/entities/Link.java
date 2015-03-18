@@ -20,19 +20,22 @@ public class Link {
     public static final String URL = "url";
     public static final String CLICK_COUNT = "clicks";
     public static final String SCORE = "score";
+    public static final String UUID = "uuid";
 
     private final String name;
     private final String title;
     private final String url;
+    private final String uuid;
     private final int clicks;
     private final double score;
 
-    public Link(final String name, final String title, final String url, final int clicks, final double score) {
+    public Link(final String name, final String title, final String url, final int clicks, final double score, final String uuid) {
         this.name = name;
         this.title = title;
         this.url = url;
         this.clicks = clicks;
         this.score = score;
+		this.uuid = uuid;
     }
 
     /**
@@ -80,4 +83,8 @@ public class Link {
                 .append(", clicks=").append(clicks).append(", score=").append(score).append("]");
         return builder.toString();
     }
+
+	public String getUuid() {
+		return uuid;
+	}
 }
