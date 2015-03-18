@@ -22,6 +22,8 @@ public class EditLinkWindow extends Window {
 
 	private Button saveButton;
 
+	private TextField titleField;
+
 	/**
 	 * Open the window to create a new link
 	 */
@@ -42,6 +44,9 @@ public class EditLinkWindow extends Window {
 		center();
 		setModal(true);
 
+		setWidth("50%");
+		setHeight("80%");
+		
 		buildLayout();
 		if (existingLinkId != null) {
 			loadData();
@@ -50,13 +55,20 @@ public class EditLinkWindow extends Window {
 
 
 	private void buildLayout() {
-		GridLayout root = new GridLayout(4, 4);
+		GridLayout root = new GridLayout(1, 4);
+		root.setWidth("100%");
 		setContent(root);
 
 		nameField = new TextField("Name");
-		root.addComponent(nameField, 0, 0);
+		nameField.setWidth("100%");
+		root.addComponent(nameField);
 		urlField = new TextField("URL");
-		root.addComponent(urlField, 1, 0);
+		urlField.setWidth("100%");
+		root.addComponent(urlField);
+		titleField = new TextField("Title");
+		titleField.setWidth("100%");
+		root.addComponent(titleField);
+		
 		saveButton = new Button("Save");
 		saveButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = -8608246641439095241L;
@@ -65,7 +77,7 @@ public class EditLinkWindow extends Window {
 				saveLink();
 			}
 		});
-		root.addComponent(saveButton, 2, 0);
+		root.addComponent(saveButton);
 	}
 
 	private void loadData() {
@@ -73,7 +85,7 @@ public class EditLinkWindow extends Window {
 	}
 
 	private void saveLink() {
-		persistence.addLink(nameField.getValue(), urlField.getValue(), "optional!");
+		persistence.addLink(nameField.getValue(), urlField.getValue(), titleField.getValue());
 		close();
 	}
 
