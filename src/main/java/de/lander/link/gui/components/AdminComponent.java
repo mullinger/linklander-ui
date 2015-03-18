@@ -37,7 +37,9 @@ public class AdminComponent extends CustomComponent {
 			private static final long serialVersionUID = 12356126124L;
 			@Override
 			public void buttonClick(ClickEvent event) {
+//				EditLinkWindow editLinkWindow = new EditLinkWindow(persistence, "decbd1d4-61a5-4ed0-b962-8471ca5ce785");
 				EditLinkWindow editLinkWindow = new EditLinkWindow(persistence);
+				
 				UI.getCurrent().addWindow(editLinkWindow);
 			}
 		});

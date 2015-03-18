@@ -219,6 +219,22 @@ public interface PersistenceGateway {
 	 */
 	void incrementTagClick(final String tagName);
 
+	/**
+	 * Return a single link by the unique link uuid
+	 * 
+	 * @param uuid the uuid identifying the link
+	 * @return the link object, or null if no link was found
+	 */
+	Link getLinkByUUID(String uuid);
+
+	/**
+	 * Set a single property of the link identified by the given UUID
+	 * @param linkUUID the uuid identifying the link
+	 * @param property the property to update
+	 * @param value the value to set
+	 */
+	void setLinkPropertyValue(String linkUUID, String property, String value);
+
 	// /////////////
 	// STATISTICS
 	// /////////////

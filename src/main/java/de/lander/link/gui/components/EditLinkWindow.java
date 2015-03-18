@@ -7,6 +7,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
 
 import de.lander.persistence.daos.PersistenceGateway;
+import de.lander.persistence.entities.Link;
 
 public class EditLinkWindow extends Window {
 
@@ -81,11 +82,20 @@ public class EditLinkWindow extends Window {
 	}
 
 	private void loadData() {
-		
+		Link link = persistence.getLinkByUUID(existingLinkId);
+		nameField.setValue(link.getName());
+		urlField.setValue(link.getUrl());
+		titleField.setValue(link.getTitle());
 	}
 
 	private void saveLink() {
-		persistence.addLink(nameField.getValue(), urlField.getValue(), titleField.getValue());
+		if (existingLinkId == null) {
+			persistence.addLink(nameField.getValue(), urlField.getValue(), titleField.getValue());
+		} else {
+			persistence.setLinkPropertyValue(existingLinkId, Link.NAME, nameField.getValue());
+			persistence.setLinkPropertyValue(existingLinkId, Link.URL, urlField.getValue());
+			persistence.setLinkPropertyValue(existingLinkId, Link.TITLE, titleField.getValue());
+		}
 		close();
 	}
 
