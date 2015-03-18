@@ -205,7 +205,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		List<Link> retrievedLinks = new ArrayList<>();
 
 		String sql = new StringBuilder(128).append("MATCH (link:")
-				.append(Link.LABEL).append(") WHERE link.{property}  =~ '.*")
+				.append(Link.LABEL).append(") WHERE link.{property}  =~ '(?i).*") //(?i): Case insensitive matching
 				.append(propertyValue).append(".*'").append(" RETURN link")
 				.toString();
 
