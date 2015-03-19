@@ -24,6 +24,8 @@ public class EditLinkWindow extends Window {
 	private Button saveButton;
 
 	private TextField titleField;
+	
+	private java.util.function.Consumer<Object> saveCallback;
 
 	/**
 	 * Open the window to create a new link
@@ -96,6 +98,11 @@ public class EditLinkWindow extends Window {
 			persistence.setLinkPropertyValue(existingLinkId, Link.URL, urlField.getValue());
 			persistence.setLinkPropertyValue(existingLinkId, Link.TITLE, titleField.getValue());
 		}
+		
+		if (saveCallback != null) {
+			saveCallback.accept(existingLinkId);
+		}
+		
 		close();
 	}
 
@@ -105,5 +112,13 @@ public class EditLinkWindow extends Window {
 
 	public void setPersistence(PersistenceGateway persistence) {
 		this.persistence = persistence;
+	}
+
+	public java.util.function.Consumer<Object> getSaveCallback() {
+		return saveCallback;
+	}
+
+	public void setSaveCallback(java.util.function.Consumer<Object> saveCallback) {
+		this.saveCallback = saveCallback;
 	}
 }

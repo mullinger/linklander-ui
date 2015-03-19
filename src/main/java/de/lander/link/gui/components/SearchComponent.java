@@ -9,10 +9,12 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.cdi.UIScoped;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Table.ColumnHeaderMode;
@@ -50,6 +52,7 @@ public class SearchComponent extends CustomComponent {
 		links.addContainerProperty("id", String.class, null);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
+		links.addContainerProperty("edit", Component.class, null);
 
 		links.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		links.setFooterVisible(false);
@@ -65,6 +68,18 @@ public class SearchComponent extends CustomComponent {
 		});
 
 	}
+	
+	
+	private void performSearch() {
+		if (input.getValue().equals("")) {
+			links.setVisible(false);
+			links.removeAllItems();
+		} else {
+			loadLinks(input.getValue());
+			links.setVisible(true);
+		}
+	}
+	
 
 	private void loadLinks(final String searchText) {
 		links.removeAllItems();
@@ -83,8 +98,17 @@ public class SearchComponent extends CustomComponent {
 		com.vaadin.ui.Link externalLink = new com.vaadin.ui.Link(link.getUrl(), new ExternalResource(link.getUrl()));
 		externalLink.setTargetName("_blank"); // Open in new Tab
 
+		// Edit Button
+		Button editButton = new Button();
+		editButton.addClickListener(event -> {
+			EditLinkWindow editLinkWindow = new EditLinkWindow(persistenceGatewayImpl, link.getUuid());
+			editLinkWindow.setSaveCallback(in->performSearch());
+			UI.getCurrent().addWindow(editLinkWindow);
+		});
+		editButton.setCaption("edit");
+		
 		// Create the table row object array
-		return new Object[] { link.getUuid(), link.getName(), externalLink };
+		return new Object[] { link.getUuid(), link.getName(), externalLink, editButton};
 	}
 
 	private void buildLayout() {

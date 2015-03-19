@@ -30,8 +30,6 @@ public class AdminComponent extends CustomComponent {
 	private void buildLayout() {
 		verticalLayout = new VerticalLayout();
 		
-		verticalLayout.addComponent(new Label("TTTTEEEEESSSSTTT"));
-		
 		Button addButton = new Button("Add link");
 		addButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 12356126124L;
