@@ -36,8 +36,7 @@ import de.lander.persistence.entities.Tag;
  */
 @Named
 // makes: 'persistenceGatewayImpl' for bean name
-public class PersistenceGatewayImpl implements PersistenceGateway,
-		Relationships {
+public class PersistenceGatewayImpl implements PersistenceGateway, Relationships {
 
 	@Inject
 	public static transient Logger LOGGER;
@@ -63,12 +62,13 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	 */
 	private void createIndexesAndConstraints() {
 		// NOTE: contraints add also an index
-		// Name, Tag and Link Property should not need to be unique -> try to find other unique properties
-//				+ ") ASSERT link." + Link.NAME + " IS UNIQUE");
-//		this.cypher.execute("CREATE CONSTRAINT ON (link:" + Tag.LABEL
-//				+ ") ASSERT link." + Tag.NAME + " IS UNIQUE");
-//		this.cypher.execute("CREATE INDEX ON :" + Link.LABEL + "("
-//				+ LinkProperty.URL + ")");
+		// Name, Tag and Link Property should not need to be unique -> try to
+		// find other unique properties
+		// + ") ASSERT link." + Link.NAME + " IS UNIQUE");
+		// this.cypher.execute("CREATE CONSTRAINT ON (link:" + Tag.LABEL
+		// + ") ASSERT link." + Tag.NAME + " IS UNIQUE");
+		// this.cypher.execute("CREATE INDEX ON :" + Link.LABEL + "("
+		// + LinkProperty.URL + ")");
 	}
 
 	@Override
@@ -88,21 +88,18 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			node.setProperty(Link.SCORE, 0);
 			node.setProperty(Link.UUID, UUID.randomUUID().toString());
 			tx.success();
-			LOGGER.debug("Added link: name={}, url={}, title={}", new Object[] {
-					name, url, title });
+			LOGGER.debug("Added link: name={}, url={}, title={}", new Object[] { name, url, title });
 		} catch (ConstraintViolationException cve) {
 			LOGGER.error(cve.getMessage(), cve);
-			throw new IllegalArgumentException(
-					String.format(
-							"Error on creating link with name=%s, url=%s, title=%s, because=%s",
-							name, url, title, cve.getMessage()));
+			throw new IllegalArgumentException(String.format(
+					"Error on creating link with name=%s, url=%s, title=%s, because=%s", name, url, title,
+					cve.getMessage()));
 		}
 
 	}
 
 	@Override
-	public void setLinkPropertyValue(final String linkUUID,
-			final String property, final String value) {
+	public void setLinkPropertyValue(final String linkUUID, final String property, final String value) {
 		try (Transaction tx = this.graphDb.beginTx()) {
 			Node link = getNodeByUUID(linkUUID);
 			link.setProperty(property, value);
@@ -111,8 +108,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	}
 
 	@Override
-	public void updateLink(final LinkProperty property,
-			final String propertyValue, final String newPropertyValue) {
+	public void updateLink(final LinkProperty property, final String propertyValue, final String newPropertyValue) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
 		Validate.notBlank(newPropertyValue);
@@ -129,24 +125,20 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 				linkToUpdate.setProperty(Link.URL, newPropertyValue);
 				break;
 			case CLICK_COUNT:
-				int oldClickCount = Integer.parseInt(String
-						.valueOf(linkToUpdate.getProperty(Link.CLICK_COUNT)));
+				int oldClickCount = Integer.parseInt(String.valueOf(linkToUpdate.getProperty(Link.CLICK_COUNT)));
 				int newClickCount = ++oldClickCount;
 				internalNewPropertyValue = String.valueOf(newClickCount);
 				linkToUpdate.setProperty(Link.CLICK_COUNT, newClickCount);
 				break;
 			case SCORE:
-				Validate.isTrue(isDouble(newPropertyValue),
-						"Score must be a double value");
+				Validate.isTrue(isDouble(newPropertyValue), "Score must be a double value");
 				linkToUpdate.setProperty(Link.SCORE, newPropertyValue);
 				break;
 			default:
-				throw new IllegalArgumentException("property={" + property
-						+ "} is not supported");
+				throw new IllegalArgumentException("property={" + property + "} is not supported");
 			}
 
-			LOGGER.debug("Updated link: property={}, newValue={}",
-					new Object[] { property, internalNewPropertyValue });
+			LOGGER.debug("Updated link: property={}, newValue={}", new Object[] { property, internalNewPropertyValue });
 			tx.success();
 		}
 	}
@@ -176,24 +168,20 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	 *            the value of the property
 	 * @return the {@link Node} or <code>null</code> if no node was found
 	 */
-	private Node retrieveLinkByExactProperty(final LinkProperty property,
-			final String propertyValue) {
+	private Node retrieveLinkByExactProperty(final LinkProperty property, final String propertyValue) {
 
 		ResourceIterable<Node> links = null;
 		switch (property) {
 		case NAME:
 		case CLICK_COUNT:
 		case SCORE:
-			links = this.graphDb.findNodesByLabelAndProperty(Link.LABEL,
-					Link.NAME, propertyValue);
+			links = this.graphDb.findNodesByLabelAndProperty(Link.LABEL, Link.NAME, propertyValue);
 			break;
 		case URL:
-			links = this.graphDb.findNodesByLabelAndProperty(Link.LABEL,
-					Link.URL, propertyValue);
+			links = this.graphDb.findNodesByLabelAndProperty(Link.LABEL, Link.URL, propertyValue);
 			break;
 		default:
-			throw new IllegalArgumentException("property={" + property
-					+ "} is not supported");
+			throw new IllegalArgumentException("property={" + property + "} is not supported");
 		}
 
 		ResourceIterator<Node> iterator = links.iterator();
@@ -202,15 +190,13 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			// there should only be one node with this searchable property!
 			return iterator.next();
 		} else {
-			throw new IllegalArgumentException(
-					"no link node was found for property={" + property
-							+ "} and value={" + propertyValue + "}");
+			throw new IllegalArgumentException("no link node was found for property={" + property + "} and value={"
+					+ propertyValue + "}");
 		}
 	}
 
 	private Node getNodeByUUID(final String uuid) {
-		String sql = new StringBuilder(128).append("MATCH (link:")
-				.append(Link.LABEL).append(") WHERE link.uuid  =~ '")
+		String sql = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL).append(") WHERE link.uuid  =~ '")
 				.append(uuid).append("'").append(" RETURN link").toString();
 
 		ExecutionResult execute = null;
@@ -237,37 +223,30 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	}
 
 	@Override
-	public List<Link> searchLinks(final LinkProperty property,
-			final String propertyValue) {
+	public List<Link> searchLinks(final LinkProperty property, final String propertyValue) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
 
 		List<Link> retrievedLinks = new ArrayList<>();
 
-		String sql = new StringBuilder(128)
-				.append("MATCH (link:")
-				.append(Link.LABEL)
+		String sql = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL)
 				.append(") WHERE link.{property}  =~ '(?i).*")
 				// (?i): Case
 				// insensitive
 				// matching
-				.append(propertyValue).append(".*'").append(" RETURN link")
-				.toString();
+				.append(propertyValue).append(".*'").append(" RETURN link").toString();
 
 		ExecutionResult execute = null;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			switch (property) {
 			case NAME:
-				execute = this.cypher.execute(sql.replace("{property}",
-						Link.NAME));
+				execute = this.cypher.execute(sql.replace("{property}", Link.NAME));
 				break;
 			case URL:
-				execute = this.cypher.execute(sql.replace("{property}",
-						Link.URL));
+				execute = this.cypher.execute(sql.replace("{property}", Link.URL));
 				break;
 			default:
-				throw new IllegalArgumentException("property '"
-						+ property.name() + "' is not supported");
+				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
 			Iterator<Node> links = execute.columnAs("link"); // from return
@@ -278,8 +257,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			}
 		}
 
-		LOGGER.debug("Retrieved links: property={}, value={}", new Object[] {
-				property, propertyValue });
+		LOGGER.debug("Retrieved links: property={}, value={}", new Object[] { property, propertyValue });
 		return retrievedLinks;
 	}
 
@@ -287,18 +265,31 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		String name = String.valueOf(linkNode.getProperty(Link.NAME));
 		String title = String.valueOf(linkNode.getProperty(Link.TITLE));
 		String url = String.valueOf(linkNode.getProperty(Link.URL));
-		int clicks = Integer.valueOf(String.valueOf(linkNode
-				.getProperty(Link.CLICK_COUNT)));
-		double score = Double.valueOf(String.valueOf(linkNode
-				.getProperty(Link.SCORE)));
+		int clicks = Integer.valueOf(String.valueOf(linkNode.getProperty(Link.CLICK_COUNT)));
+		double score = Double.valueOf(String.valueOf(linkNode.getProperty(Link.SCORE)));
 		String uuid = String.valueOf(linkNode.getProperty(Link.UUID));
 
 		return new Link(name, title, url, clicks, score, uuid);
 	}
 
+	
+
 	@Override
-	public void deleteLink(final LinkProperty property,
-			final String propertyValue, final DeletionMode mode) {
+	public void deleteLink(String uuid) {
+		Validate.notBlank(uuid);
+
+		String query = null;
+		try (Transaction tx = this.graphDb.beginTx()) {
+			// step 1: build query
+			query = "MATCH (link:" + Link.LABEL + " {"+Link.UUID+":'" + uuid + "'}) DELETE link";
+
+			this.cypher.execute(query);
+			tx.success();
+		}
+	}
+	
+	@Override
+	public void deleteLink(final LinkProperty property, final String propertyValue, final DeletionMode mode) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
 		Validate.notNull(mode);
@@ -308,19 +299,15 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		// step 1: build query
 		switch (mode) {
 		case EXACT:
-			query = "MATCH (link:" + Link.LABEL + " {<property>: '"
-					+ propertyValue + "'}) DELETE link";
+			query = "MATCH (link:" + Link.LABEL + " {<property>: '" + propertyValue + "'}) DELETE link";
 			break;
 		case SOFT:
-			query = new StringBuilder(128).append("MATCH (link:")
-					.append(Link.LABEL).append(")")
-					.append("WHERE link.<property>  =~ '.*")
-					.append(propertyValue).append(".*'").append(" DELETE link")
+			query = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL).append(")")
+					.append("WHERE link.<property>  =~ '.*").append(propertyValue).append(".*'").append(" DELETE link")
 					.toString();
 			break;
 		default:
-			throw new IllegalArgumentException("Deletion mode={" + mode.name()
-					+ "} is not supported");
+			throw new IllegalArgumentException("Deletion mode={" + mode.name() + "} is not supported");
 		}
 
 		// step 2: replace variables and execute query
@@ -333,13 +320,11 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 				query = query.replace("<property>", Link.URL);
 				break;
 			default:
-				throw new IllegalArgumentException("property '"
-						+ property.name() + "' is not supported");
+				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
-			LOGGER.debug(
-					"Delete Link query=\"{}\" for linkProperty={}, value={} and mode={}",
-					new Object[] { query, property, propertyValue, mode });
+			LOGGER.debug("Delete Link query=\"{}\" for linkProperty={}, value={} and mode={}", new Object[] { query,
+					property, propertyValue, mode });
 
 			this.cypher.execute(query);
 			tx.success();
@@ -350,8 +335,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	public void addTag(final String name, final String description) {
 		Validate.notBlank(name, "the name of the tag is blank");
 		Validate.notBlank(description, "the description of the tag is blank");
-		Validate.isTrue(description.length() <= 255,
-				"the description is longer than 255 chars");
+		Validate.isTrue(description.length() <= 255, "the description is longer than 255 chars");
 
 		Node node;
 		try (Transaction tx = this.graphDb.beginTx()) {
@@ -360,21 +344,18 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			node.setProperty(Tag.NAME, name);
 			node.setProperty(Tag.DESCRIPTION, description);
 			node.setProperty(Tag.CLICK_COUNT, 0);
-			LOGGER.debug("Added tag: name={}, description={}", new Object[] {
-					name, description });
+			LOGGER.debug("Added tag: name={}, description={}", new Object[] { name, description });
 			tx.success();
 		} catch (ConstraintViolationException cve) {
 			LOGGER.error(cve.getMessage(), cve);
-			throw new IllegalArgumentException(
-					String.format(
-							"Error on creating tag with name=%s, description=%s, because=%s",
-							name, description, cve.getMessage()));
+			throw new IllegalArgumentException(String.format(
+					"Error on creating tag with name=%s, description=%s, because=%s", name, description,
+					cve.getMessage()));
 		}
 	}
 
 	@Override
-	public void updateTag(final TagProperty property,
-			final String propertyValue, final String newPropertyValue) {
+	public void updateTag(final TagProperty property, final String propertyValue, final String newPropertyValue) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
 		Validate.notBlank(newPropertyValue);
@@ -388,19 +369,16 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 				tagToUpdate.setProperty(Tag.NAME, newPropertyValue);
 				break;
 			case CLICK_COUNT:
-				int oldClickCount = Integer.parseInt(String.valueOf(tagToUpdate
-						.getProperty(Tag.CLICK_COUNT)));
+				int oldClickCount = Integer.parseInt(String.valueOf(tagToUpdate.getProperty(Tag.CLICK_COUNT)));
 				int newClickCount = ++oldClickCount;
 				internalNewPropertyValue = String.valueOf(newClickCount);
 				tagToUpdate.setProperty(Tag.CLICK_COUNT, newClickCount);
 				break;
 			default:
-				throw new IllegalArgumentException("property={" + property
-						+ "} is not supported");
+				throw new IllegalArgumentException("property={" + property + "} is not supported");
 			}
 
-			LOGGER.debug("Updated tag: property={}, newValue={}", new Object[] {
-					property, internalNewPropertyValue });
+			LOGGER.debug("Updated tag: property={}, newValue={}", new Object[] { property, internalNewPropertyValue });
 			tx.success();
 		}
 	}
@@ -414,19 +392,16 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	 *            the value of the property
 	 * @return the {@link Node} or <code>null</code> if no node was found
 	 */
-	private Node retrieveTagByExactProperty(final TagProperty property,
-			final String propertyValue) {
+	private Node retrieveTagByExactProperty(final TagProperty property, final String propertyValue) {
 
 		ResourceIterable<Node> links = null;
 		switch (property) {
 		case NAME:
 		case CLICK_COUNT:
-			links = this.graphDb.findNodesByLabelAndProperty(Tag.LABEL,
-					Tag.NAME, propertyValue);
+			links = this.graphDb.findNodesByLabelAndProperty(Tag.LABEL, Tag.NAME, propertyValue);
 			break;
 		default:
-			throw new IllegalArgumentException("property={" + property
-					+ "} is not supported");
+			throw new IllegalArgumentException("property={" + property + "} is not supported");
 		}
 
 		ResourceIterator<Node> iterator = links.iterator();
@@ -435,35 +410,30 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			// there should only be one node with this searchable property!
 			return iterator.next();
 		} else {
-			throw new IllegalArgumentException(
-					"no tag node was found for property={" + property
-							+ "} and value={" + propertyValue + "}");
+			throw new IllegalArgumentException("no tag node was found for property={" + property + "} and value={"
+					+ propertyValue + "}");
 		}
 	}
 
 	@Override
-	public List<Tag> searchTags(final TagProperty property,
-			final String propertyValue) {
+	public List<Tag> searchTags(final TagProperty property, final String propertyValue) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
 
 		List<Tag> retrievedTags = new ArrayList<>();
 
-		String sql = new StringBuilder(128).append("MATCH (tag:")
-				.append(Tag.LABEL).append(") WHERE tag.{property}  =~ '.*")
-				.append(propertyValue).append(".*'").append(" RETURN tag")
+		String sql = new StringBuilder(128).append("MATCH (tag:").append(Tag.LABEL)
+				.append(") WHERE tag.{property}  =~ '.*").append(propertyValue).append(".*'").append(" RETURN tag")
 				.toString();
 
 		ExecutionResult execute = null;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			switch (property) {
 			case NAME:
-				execute = this.cypher.execute(sql.replace("{property}",
-						Tag.NAME));
+				execute = this.cypher.execute(sql.replace("{property}", Tag.NAME));
 				break;
 			default:
-				throw new IllegalArgumentException("property '"
-						+ property.name() + "' is not supported");
+				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
 			Iterator<Node> links = execute.columnAs("tag"); // from return
@@ -471,23 +441,19 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			while (links.hasNext()) {
 				Node link = links.next();
 				String name = String.valueOf(link.getProperty(Tag.NAME));
-				String description = String.valueOf(link
-						.getProperty(Tag.DESCRIPTION));
-				int clicks = Integer.valueOf(String.valueOf(link
-						.getProperty(Link.CLICK_COUNT)));
+				String description = String.valueOf(link.getProperty(Tag.DESCRIPTION));
+				int clicks = Integer.valueOf(String.valueOf(link.getProperty(Link.CLICK_COUNT)));
 
 				retrievedTags.add(new Tag(name, description, clicks));
 			}
 		}
 
-		LOGGER.debug("Retrieved tags: property={}, value={}", new Object[] {
-				property, propertyValue });
+		LOGGER.debug("Retrieved tags: property={}, value={}", new Object[] { property, propertyValue });
 		return retrievedTags;
 	}
 
 	@Override
-	public void deleteTag(final TagProperty property,
-			final String propertyValue, final DeletionMode mode) {
+	public void deleteTag(final TagProperty property, final String propertyValue, final DeletionMode mode) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
 		Validate.notNull(mode);
@@ -497,19 +463,15 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		// step 1: build query
 		switch (mode) {
 		case EXACT:
-			query = "MATCH (tag:" + Tag.LABEL + " {<property>: '"
-					+ propertyValue + "'}) DELETE tag";
+			query = "MATCH (tag:" + Tag.LABEL + " {<property>: '" + propertyValue + "'}) DELETE tag";
 			break;
 		case SOFT:
-			query = new StringBuilder(128).append("MATCH (tag:")
-					.append(Tag.LABEL).append(")")
-					.append("WHERE tag.<property>  =~ '.*")
-					.append(propertyValue).append(".*'").append(" DELETE tag")
+			query = new StringBuilder(128).append("MATCH (tag:").append(Tag.LABEL).append(")")
+					.append("WHERE tag.<property>  =~ '.*").append(propertyValue).append(".*'").append(" DELETE tag")
 					.toString();
 			break;
 		default:
-			throw new IllegalArgumentException("Deletion mode={" + mode.name()
-					+ "} is not supported");
+			throw new IllegalArgumentException("Deletion mode={" + mode.name() + "} is not supported");
 		}
 
 		// step 2: replace variables and execute query
@@ -519,13 +481,11 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 				query = query.replace("<property>", Tag.NAME);
 				break;
 			default:
-				throw new IllegalArgumentException("property '"
-						+ property.name() + "' is not supported");
+				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
-			LOGGER.debug(
-					"Delete Tag query=\"{}\" for tagProperty={}, value={} and mode={}",
-					new Object[] { query, property, propertyValue, mode });
+			LOGGER.debug("Delete Tag query=\"{}\" for tagProperty={}, value={} and mode={}", new Object[] { query,
+					property, propertyValue, mode });
 
 			this.cypher.execute(query);
 			tx.success();
@@ -544,13 +504,11 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		try (Transaction tx = this.graphDb.beginTx()) {
 			for (Tag existingTag : existingTags) {
 				for (Link existingLink : existingLinks) {
-					this.cypher.execute(buildTaggingQuery(
-							existingLink.getName(), existingTag.getName()));
+					this.cypher.execute(buildTaggingQuery(existingLink.getName(), existingTag.getName()));
 				}
 			}
 
-			LOGGER.debug("Added tag to link: {}-[TAGGED]-{}", new Object[] {
-					tagName, linkName });
+			LOGGER.debug("Added tag to link: {}-[TAGGED]-{}", new Object[] { tagName, linkName });
 			tx.success();
 		}
 	}
@@ -566,17 +524,14 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	 */
 	private String buildTaggingQuery(final String linkName, final String tagName) {
 		String query = "MATCH "
-				// link
-				+ "(link:" + Link.LABEL + " {" + Link.NAME + ": '" + linkName
-				+ "'}), "
+		// link
+				+ "(link:" + Link.LABEL + " {" + Link.NAME + ": '" + linkName + "'}), "
 				// tag
-				+ "(tag:" + Tag.LABEL + " {" + Tag.NAME + ": '" + tagName
-				+ "'}) "
+				+ "(tag:" + Tag.LABEL + " {" + Tag.NAME + ": '" + tagName + "'}) "
 				// relationship
 				+ "CREATE (tag)-[:" + TAGGED + "]->(link)";
 
-		LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'",
-				new Object[] { query, linkName, tagName });
+		LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'", new Object[] { query, linkName, tagName });
 		return query;
 	}
 
@@ -594,8 +549,8 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 		List<Tag> foundTags = new ArrayList<Tag>();
 		ExecutionResult execute = null;
 		try (Transaction tx = this.graphDb.beginTx()) {
-			execute = this.cypher.execute("MATCH (:Link {name: '" + linkName
-					+ "'})<-[:" + TAGGED + "]-(tag:Tag) RETURN tag");
+			execute = this.cypher.execute("MATCH (:Link {name: '" + linkName + "'})<-[:" + TAGGED
+					+ "]-(tag:Tag) RETURN tag");
 			tx.success();
 
 			Iterator<Node> tags = execute.columnAs("tag"); // from return
@@ -603,10 +558,8 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 			while (tags.hasNext()) {
 				Node tag = tags.next();
 				String name = String.valueOf(tag.getProperty(Tag.NAME));
-				String description = String.valueOf(tag
-						.getProperty(Tag.DESCRIPTION));
-				int clicks = Integer.valueOf(String.valueOf(tag
-						.getProperty(Link.CLICK_COUNT)));
+				String description = String.valueOf(tag.getProperty(Tag.DESCRIPTION));
+				int clicks = Integer.valueOf(String.valueOf(tag.getProperty(Link.CLICK_COUNT)));
 
 				foundTags.add(new Tag(name, description, clicks));
 			}
@@ -629,6 +582,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway,
 	public void incrementTagClick(final String tagName) {
 		updateTag(TagProperty.CLICK_COUNT, tagName, tagName);
 	}
+
 
 	// /**
 	// * Shutdown hook for the graphDb

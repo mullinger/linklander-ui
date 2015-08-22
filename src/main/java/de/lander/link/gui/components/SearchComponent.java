@@ -53,7 +53,8 @@ public class SearchComponent extends CustomComponent {
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
 		links.addContainerProperty("edit", Component.class, null);
-
+		links.addContainerProperty("delete", Component.class, null);
+		
 		links.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		links.setFooterVisible(false);
 
@@ -107,8 +108,16 @@ public class SearchComponent extends CustomComponent {
 		});
 		editButton.setCaption("edit");
 		
+		// Delete button
+		Button deleteButton = new Button();
+		deleteButton.addClickListener(event -> {
+			persistenceGatewayImpl.deleteLink(link.getUuid());
+			performSearch();
+		});
+		deleteButton.setCaption("delete");
+		
 		// Create the table row object array
-		return new Object[] { link.getUuid(), link.getName(), externalLink, editButton};
+		return new Object[] { link.getUuid(), link.getName(), externalLink, editButton, deleteButton};
 	}
 
 	private void buildLayout() {

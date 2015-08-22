@@ -89,6 +89,14 @@ public interface PersistenceGateway {
 	 *            the mode of deletion
 	 */
 	void deleteLink(LinkProperty property, String propertyValue, DeletionMode mode);
+	
+	
+	/**
+	 * Delete the link specified by the given unique identifier.
+	 * 
+	 * @param uuid
+	 */
+	void deleteLink(String uuid);
 
 	// /////////////
 	// CRUD TAG
