@@ -225,7 +225,6 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	@Override
 	public List<Link> searchLinks(final LinkProperty property, final String propertyValue) {
 		Validate.notNull(property);
-		Validate.notBlank(propertyValue);
 
 		List<Link> retrievedLinks = new ArrayList<>();
 
