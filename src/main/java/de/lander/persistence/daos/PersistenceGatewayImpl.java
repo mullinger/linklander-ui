@@ -340,6 +340,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		try (Transaction tx = this.graphDb.beginTx()) {
 			node = this.graphDb.createNode();
 			node.addLabel(Tag.LABEL);
+			node.setProperty(Tag.UUID, UUID.randomUUID().toString());
 			node.setProperty(Tag.NAME, name);
 			node.setProperty(Tag.DESCRIPTION, description);
 			node.setProperty(Tag.CLICK_COUNT, 0);

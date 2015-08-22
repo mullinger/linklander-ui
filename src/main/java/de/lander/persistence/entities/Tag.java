@@ -19,6 +19,8 @@ public final class Tag {
     public static final String NAME = "name";
     public static final String DESCRIPTION = "description";
     public static final String CLICK_COUNT = "clicks";
+    public static final String UUID = "uuid";
+    
 
     private final String name;
     private final String description;

@@ -30,18 +30,31 @@ public class AdminComponent extends CustomComponent {
 	private void buildLayout() {
 		verticalLayout = new VerticalLayout();
 		
-		Button addButton = new Button("Add link");
-		addButton.addClickListener(new Button.ClickListener() {
+		// Add Link Button
+		Button addLinkButton = new Button("Add link");
+		addLinkButton.addClickListener(new Button.ClickListener() {
 			private static final long serialVersionUID = 12356126124L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-//				EditLinkWindow editLinkWindow = new EditLinkWindow(persistence, "decbd1d4-61a5-4ed0-b962-8471ca5ce785");
 				EditLinkWindow editLinkWindow = new EditLinkWindow(persistence);
 				
 				UI.getCurrent().addWindow(editLinkWindow);
 			}
 		});
-		verticalLayout.addComponent(addButton);
+		verticalLayout.addComponent(addLinkButton);
+		
+		// Add Tag Button
+		Button addTagButton = new Button("Add tag");
+		addTagButton.addClickListener(new Button.ClickListener() {
+			private static final long serialVersionUID = 12356126124L;
+			@Override
+			public void buttonClick(ClickEvent event) {
+				EditTagWindow editTagWindow = new EditTagWindow(persistence);
+				
+				UI.getCurrent().addWindow(editTagWindow);
+			}
+		});
+		verticalLayout.addComponent(addTagButton);
 		
 		setCompositionRoot(verticalLayout);
 	}
