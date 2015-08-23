@@ -40,6 +40,7 @@ public class SearchComponent extends CustomComponent {
 	@PostConstruct
 	public void postConstruct() {
 		persistenceGatewayImpl.addLink("Name", "http://name.de", "name");
+		performSearch("");
 	}
 
 	public SearchComponent() {
@@ -54,38 +55,36 @@ public class SearchComponent extends CustomComponent {
 		links.addContainerProperty("link", Component.class, null);
 		links.addContainerProperty("edit", Component.class, null);
 		links.addContainerProperty("delete", Component.class, null);
-		
+
+		links.setWidth("100%");
+		// TODO: Work on the column width/scaling
+		links.setColumnWidth("id", 400);
+
 		links.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		links.setFooterVisible(false);
+		links.setVisible(true);
 
 		input.addTextChangeListener(event -> {
-			if (event.getText().equals("")) {
-				links.setVisible(false);
-				links.removeAllItems();
-			} else {
-				loadLinks(event.getText());
-				links.setVisible(true);
-			}
+			this.performSearch(event.getText());
 		});
+		
+	}
 
+	private void performSearch(String searchText) {
+		loadLinks(searchText.trim());
 	}
-	
-	
-	private void performSearch() {
-		if (input.getValue().equals("")) {
-			links.setVisible(false);
-			links.removeAllItems();
-		} else {
-			loadLinks(input.getValue());
-			links.setVisible(true);
-		}
-	}
-	
 
 	private void loadLinks(final String searchText) {
 		links.removeAllItems();
 
-		List<Link> searchLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, searchText);
+		List<Link> searchLinks;
+		if (searchText.isEmpty()) {
+			searchLinks = persistenceGatewayImpl.getAllLinks();
+		} else {
+			LOGGER.trace("Searching for:" + searchText);
+			searchLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, searchText);
+		}
+
 		LOGGER.error("Found " + searchLinks.size() + " links");
 
 		for (int i = 0; i < searchLinks.size(); i++) {
@@ -103,21 +102,21 @@ public class SearchComponent extends CustomComponent {
 		Button editButton = new Button();
 		editButton.addClickListener(event -> {
 			EditLinkWindow editLinkWindow = new EditLinkWindow(persistenceGatewayImpl, link.getUuid());
-			editLinkWindow.setSaveCallback(in->performSearch());
+			editLinkWindow.setSaveCallback(in -> performSearch(input.getValue()));
 			UI.getCurrent().addWindow(editLinkWindow);
 		});
 		editButton.setCaption("edit");
-		
+
 		// Delete button
 		Button deleteButton = new Button();
 		deleteButton.addClickListener(event -> {
 			persistenceGatewayImpl.deleteLink(link.getUuid());
-			performSearch();
+			performSearch(input.getValue());
 		});
 		deleteButton.setCaption("delete");
-		
+
 		// Create the table row object array
-		return new Object[] { link.getUuid(), link.getName(), externalLink, editButton, deleteButton};
+		return new Object[] { link.getUuid(), link.getName(), externalLink, editButton, deleteButton };
 	}
 
 	private void buildLayout() {

@@ -168,6 +168,8 @@ public interface PersistenceGateway {
 	 *         <code>null</code>
 	 */
 	List<Link> searchLinks(LinkProperty property, String propertyValue);
+	
+	List<Link> getAllLinks();
 
 	/**
 	 * Retrieves {@link Tag}s with the given property

@@ -223,6 +223,31 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	}
 
 	@Override
+	public List<Link> getAllLinks() {
+
+		LOGGER.trace("Getting all links");
+		List<Link> retrievedLinks = new ArrayList<>();
+
+		String sql = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL).append(")")
+				.append(" RETURN link").toString();
+
+		ExecutionResult execute = null;
+		try (Transaction tx = this.graphDb.beginTx()) {
+			execute = this.cypher.execute(sql);
+
+			Iterator<Node> links = execute.columnAs("link"); // from return
+																// statement
+			while (links.hasNext()) {
+				Node link = links.next();
+				retrievedLinks.add(convert(link));
+			}
+		}
+		LOGGER.debug("Retrieved links: " + retrievedLinks.size());
+
+		return retrievedLinks;
+	}
+
+	@Override
 	public List<Link> searchLinks(final LinkProperty property, final String propertyValue) {
 		Validate.notNull(property);
 
@@ -271,8 +296,6 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		return new Link(name, title, url, clicks, score, uuid);
 	}
 
-	
-
 	@Override
 	public void deleteLink(String uuid) {
 		Validate.notBlank(uuid);
@@ -280,13 +303,13 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		String query = null;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			// step 1: build query
-			query = "MATCH (link:" + Link.LABEL + " {"+Link.UUID+":'" + uuid + "'}) DELETE link";
+			query = "MATCH (link:" + Link.LABEL + " {" + Link.UUID + ":'" + uuid + "'}) DELETE link";
 
 			this.cypher.execute(query);
 			tx.success();
 		}
 	}
-	
+
 	@Override
 	public void deleteLink(final LinkProperty property, final String propertyValue, final DeletionMode mode) {
 		Validate.notNull(property);
@@ -582,7 +605,6 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	public void incrementTagClick(final String tagName) {
 		updateTag(TagProperty.CLICK_COUNT, tagName, tagName);
 	}
-
 
 	// /**
 	// * Shutdown hook for the graphDb
