@@ -89,7 +89,8 @@ public class SearchComponent extends CustomComponent {
 
 		for (int i = 0; i < searchLinks.size(); i++) {
 			LOGGER.error("Found link " + i + " " + searchLinks.get(i).toString());
-			links.addItem(convert(searchLinks.get(i)), i);
+			Object[] tableValues = convert(searchLinks.get(i));
+			links.addItem(tableValues, searchLinks.get(i).getUuid()); // Use the UUID for  objectId, e.g. to delete the row later
 		}
 	}
 
@@ -111,7 +112,7 @@ public class SearchComponent extends CustomComponent {
 		Button deleteButton = new Button();
 		deleteButton.addClickListener(event -> {
 			persistenceGatewayImpl.deleteLink(link.getUuid());
-			performSearch(input.getValue());
+			this.links.removeItem(link.getUuid());
 		});
 		deleteButton.setCaption("delete");
 
