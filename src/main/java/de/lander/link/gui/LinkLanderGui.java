@@ -33,7 +33,7 @@ public class LinkLanderGui extends UI {
 		verticalLayout = new VerticalLayout();
 		verticalLayout.setWidth("100.0%");
 
-//		// top-level component properties
+		// top-level component properties
 		setContent(verticalLayout);
 		
 		tabs = new TabSheet();

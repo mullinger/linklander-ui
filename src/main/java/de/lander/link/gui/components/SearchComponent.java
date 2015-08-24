@@ -39,17 +39,21 @@ public class SearchComponent extends CustomComponent {
 
 	@PostConstruct
 	public void postConstruct() {
+		// TODO: remove when no more testdata is needed
 		persistenceGatewayImpl.addLink("Name", "http://name.de", "name");
+		// Initialize table to show all links
 		performSearch("");
 	}
 
 	public SearchComponent() {
 		buildLayout();
 
+		// Search bar
 		input.focus();
 		input.setInputPrompt("type to land a link...");
 		input.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
+		// Result table
 		links.addContainerProperty("id", String.class, null);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
@@ -81,20 +85,20 @@ public class SearchComponent extends CustomComponent {
 		if (searchText.isEmpty()) {
 			searchLinks = persistenceGatewayImpl.getAllLinks();
 		} else {
-			LOGGER.trace("Searching for:" + searchText);
+//			LOGGER.trace("Searching for:" + searchText);
 			searchLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, searchText);
 		}
 
-		LOGGER.error("Found " + searchLinks.size() + " links");
+//		LOGGER.error("Found " + searchLinks.size() + " links");
 
 		for (int i = 0; i < searchLinks.size(); i++) {
-			LOGGER.error("Found link " + i + " " + searchLinks.get(i).toString());
-			Object[] tableValues = convert(searchLinks.get(i));
+//			LOGGER.error("Found link " + i + " " + searchLinks.get(i).toString());
+			Object[] tableValues = convertLinkToTableData(searchLinks.get(i));
 			links.addItem(tableValues, searchLinks.get(i).getUuid()); // Use the UUID for  objectId, e.g. to delete the row later
 		}
 	}
 
-	private Object[] convert(Link link) {
+	private Object[] convertLinkToTableData(Link link) {
 		// Create a Vaading HTTP clickable link
 		com.vaadin.ui.Link externalLink = new com.vaadin.ui.Link(link.getUrl(), new ExternalResource(link.getUrl()));
 		externalLink.setTargetName("_blank"); // Open in new Tab

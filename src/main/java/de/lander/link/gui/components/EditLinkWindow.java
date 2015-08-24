@@ -1,7 +1,6 @@
 package de.lander.link.gui.components;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Window;
@@ -15,7 +14,7 @@ public class EditLinkWindow extends Window {
 
 	private PersistenceGateway persistence;
 
-	private String existingLinkId;
+	private final String existingLinkId;
 
 	private TextField nameField;
 
@@ -24,7 +23,7 @@ public class EditLinkWindow extends Window {
 	private Button saveButton;
 
 	private TextField titleField;
-	
+
 	private java.util.function.Consumer<Object> saveCallback;
 
 	/**
@@ -33,11 +32,12 @@ public class EditLinkWindow extends Window {
 	public EditLinkWindow(PersistenceGateway persistence) {
 		this(persistence, null);
 	}
-	
+
 	/**
 	 * Open a window to create a new link or edit an existing link
 	 * 
-	 * @param existingLinkId id of the link to edit. Null if new link should be added
+	 * @param existingLinkId
+	 *            id of the link to edit. Null if new link should be added
 	 */
 	public EditLinkWindow(PersistenceGateway persistence, String existingLinkId) {
 		super(existingLinkId == null ? "Add link" : "Edit link");
@@ -49,45 +49,51 @@ public class EditLinkWindow extends Window {
 
 		setWidth("50%");
 		setHeight("80%");
-		
-		buildLayout();
-		if (existingLinkId != null) {
-			loadData();
-		}
-	}
 
+		buildLayout();
+		initData();
+	}
 
 	private void buildLayout() {
 		GridLayout root = new GridLayout(1, 4);
 		root.setWidth("100%");
 		setContent(root);
 
+		// Name Field
 		nameField = new TextField("Name");
 		nameField.setWidth("100%");
 		root.addComponent(nameField);
+
+		// URL Field
 		urlField = new TextField("URL");
 		urlField.setWidth("100%");
 		root.addComponent(urlField);
+
+		// TItle Field
 		titleField = new TextField("Title");
 		titleField.setWidth("100%");
 		root.addComponent(titleField);
-		
+
+		// Save Button
 		saveButton = new Button("Save");
-		saveButton.addClickListener(new Button.ClickListener() {
-			private static final long serialVersionUID = -8608246641439095241L;
-			@Override
-			public void buttonClick(ClickEvent event) {
-				saveLink();
-			}
+		saveButton.addClickListener(event -> {
+			saveLink();
 		});
 		root.addComponent(saveButton);
 	}
 
-	private void loadData() {
-		Link link = persistence.getLinkByUUID(existingLinkId);
-		nameField.setValue(link.getName());
-		urlField.setValue(link.getUrl());
-		titleField.setValue(link.getTitle());
+	private void initData() {
+		if (existingLinkId != null) {
+			// Edit existing link
+			Link link = persistence.getLinkByUUID(existingLinkId);
+			nameField.setValue(link.getName());
+			urlField.setValue(link.getUrl());
+			titleField.setValue(link.getTitle());
+		} else {
+			// New link
+			urlField.setValue("http://");
+		}
+
 	}
 
 	private void saveLink() {
@@ -98,11 +104,11 @@ public class EditLinkWindow extends Window {
 			persistence.setLinkPropertyValue(existingLinkId, Link.URL, urlField.getValue());
 			persistence.setLinkPropertyValue(existingLinkId, Link.TITLE, titleField.getValue());
 		}
-		
+
 		if (saveCallback != null) {
 			saveCallback.accept(existingLinkId);
 		}
-		
+
 		close();
 	}
 

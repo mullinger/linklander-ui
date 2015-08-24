@@ -55,6 +55,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		this.graphDb = graphDb;
 		this.cypher = new ExecutionEngine(graphDb, StringLogger.DEV_NULL);
 		createIndexesAndConstraints();
+		registerShutdownHook(graphDb);
 	}
 
 	/**
@@ -606,22 +607,21 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		updateTag(TagProperty.CLICK_COUNT, tagName, tagName);
 	}
 
-	// /**
-	// * Shutdown hook for the graphDb
-	// *
-	// * @param graphDb
-	// * the db to securely shutdown
-	// */
-	// private static void registerShutdownHook(final GraphDatabaseService
-	// graphDb) {
-	// // Registers a shutdown hook for the Neo4j instance so that it
-	// // shuts down nicely when the VM exits (even if you "Ctrl-C" the
-	// // running application).
-	// Runtime.getRuntime().addShutdownHook(new Thread() {
-	// @Override
-	// public void run() {
-	// graphDb.shutdown();
-	// }
-	// });
-	// }
+	/**
+	 * Shutdown hook for the graphDb
+	 *
+	 * @param graphDb
+	 *            the db to securely shutdown
+	 */
+	private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+		// Registers a shutdown hook for the Neo4j instance so that it
+		// shuts down nicely when the VM exits (even if you "Ctrl-C" the
+		// running application).
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				graphDb.shutdown();
+			}
+		});
+	}
 }

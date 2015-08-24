@@ -89,8 +89,7 @@ public interface PersistenceGateway {
 	 *            the mode of deletion
 	 */
 	void deleteLink(LinkProperty property, String propertyValue, DeletionMode mode);
-	
-	
+
 	/**
 	 * Delete the link specified by the given unique identifier.
 	 * 
@@ -168,7 +167,11 @@ public interface PersistenceGateway {
 	 *         <code>null</code>
 	 */
 	List<Link> searchLinks(LinkProperty property, String propertyValue);
-	
+
+	/**
+	 * Get all links that are stored in the database
+	 * @return
+	 */
 	List<Link> getAllLinks();
 
 	/**
@@ -232,25 +235,22 @@ public interface PersistenceGateway {
 	/**
 	 * Return a single link by the unique link uuid
 	 * 
-	 * @param uuid the uuid identifying the link
+	 * @param uuid
+	 *            the uuid identifying the link
 	 * @return the link object, or null if no link was found
 	 */
 	Link getLinkByUUID(String uuid);
 
 	/**
 	 * Set a single property of the link identified by the given UUID
-	 * @param linkUUID the uuid identifying the link
-	 * @param property the property to update
-	 * @param value the value to set
+	 * 
+	 * @param linkUUID
+	 *            the uuid identifying the link
+	 * @param property
+	 *            the property to update
+	 * @param value
+	 *            the value to set
 	 */
 	void setLinkPropertyValue(String linkUUID, String property, String value);
 
-	// /////////////
-	// STATISTICS
-	// /////////////
-
-	// get number of all tags
-	// get number of all links
-	// get number of all taggings
-	// get number average tags for a link
 }
