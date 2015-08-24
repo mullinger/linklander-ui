@@ -25,11 +25,13 @@ public final class Tag {
     private final String name;
     private final String description;
     private final int clicks;
+    private final String uuid;
 
-    public Tag(final String name, final String description, final int clicks) {
+    public Tag(final String name, final String description, final int clicks, final String uuid) {
         this.name = name;
         this.description = description;
         this.clicks = clicks;
+		this.uuid = uuid;
     }
 
     /**
@@ -63,5 +65,9 @@ public final class Tag {
                 .append(clicks).append("]");
         return builder.toString();
     }
+
+	public String getUuid() {
+		return uuid;
+	}
 }
 

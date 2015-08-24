@@ -225,8 +225,6 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 
 	@Override
 	public List<Link> getAllLinks() {
-
-		LOGGER.trace("Getting all links");
 		List<Link> retrievedLinks = new ArrayList<>();
 
 		String sql = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL).append(")")
@@ -243,9 +241,39 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 				retrievedLinks.add(convert(link));
 			}
 		}
-		LOGGER.debug("Retrieved links: " + retrievedLinks.size());
 
 		return retrievedLinks;
+	}
+
+	@Override
+	public List<Tag> getAllTags() {
+		List<Tag> retrievedTags = new ArrayList<>();
+
+		String sql = new StringBuilder(128).append("MATCH (tag:").append(Tag.LABEL).append(")").append(" RETURN tag")
+				.toString();
+
+		ExecutionResult execute = null;
+		try (Transaction tx = this.graphDb.beginTx()) {
+			execute = this.cypher.execute(sql);
+
+			Iterator<Node> tags = execute.columnAs("tag"); // from return
+															// statement
+			while (tags.hasNext()) {
+				Node tag = tags.next();
+				retrievedTags.add(convertTag(tag));
+			}
+		}
+
+		return retrievedTags;
+	}
+
+	private Tag convertTag(Node tag) {
+		String name = String.valueOf(tag.getProperty(Tag.NAME));
+		String description = String.valueOf(tag.getProperty(Tag.DESCRIPTION));
+		int clicks = Integer.valueOf(String.valueOf(tag.getProperty(Tag.CLICK_COUNT)));
+		String uuid = String.valueOf(tag.getProperty(Tag.UUID));
+
+		return new Tag(name, description, clicks, uuid);
 	}
 
 	@Override
@@ -460,15 +488,16 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
-			Iterator<Node> links = execute.columnAs("tag"); // from return
+			Iterator<Node> tags = execute.columnAs("tag"); // from return
 															// statement
-			while (links.hasNext()) {
-				Node link = links.next();
+			while (tags.hasNext()) {
+				Node link = tags.next();
 				String name = String.valueOf(link.getProperty(Tag.NAME));
 				String description = String.valueOf(link.getProperty(Tag.DESCRIPTION));
-				int clicks = Integer.valueOf(String.valueOf(link.getProperty(Link.CLICK_COUNT)));
+				int clicks = Integer.valueOf(String.valueOf(link.getProperty(Tag.CLICK_COUNT)));
+				String uuid = (String) link.getProperty(Tag.UUID);
 
-				retrievedTags.add(new Tag(name, description, clicks));
+				retrievedTags.add(new Tag(name, description, clicks, uuid));
 			}
 		}
 
@@ -584,8 +613,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 				String name = String.valueOf(tag.getProperty(Tag.NAME));
 				String description = String.valueOf(tag.getProperty(Tag.DESCRIPTION));
 				int clicks = Integer.valueOf(String.valueOf(tag.getProperty(Link.CLICK_COUNT)));
+				String uuid = (String) tag.getProperty(Tag.UUID);
 
-				foundTags.add(new Tag(name, description, clicks));
+				foundTags.add(new Tag(name, description, clicks, uuid));
 			}
 		}
 
@@ -624,4 +654,5 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 			}
 		});
 	}
+
 }

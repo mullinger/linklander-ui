@@ -184,6 +184,12 @@ public interface PersistenceGateway {
 	 * @return a list of {@link Tag}s
 	 */
 	List<Tag> searchTags(TagProperty property, String propertyValue);
+	
+	/**
+	 * Get all tags that are stored in the DB
+	 * @return a list of all tags
+	 */
+	List<Tag> getAllTags();
 
 	// /////////////
 	// MISC
