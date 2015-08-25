@@ -1,10 +1,9 @@
 package de.lander.link.gui.components;
 
+import java.util.HashSet;
 import java.util.Set;
 
-
 import javax.inject.Inject;
-
 
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +14,6 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Window.CloseEvent;
-
 
 import de.lander.link.gui.components.tag.SelectTagWindow;
 import de.lander.persistence.daos.PersistenceGateway;

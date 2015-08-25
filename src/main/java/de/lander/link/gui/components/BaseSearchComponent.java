@@ -1,5 +1,6 @@
 package de.lander.link.gui.components;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -7,35 +8,31 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.cdi.UIScoped;
 import com.vaadin.server.ExternalResource;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.AbstractTextField.TextChangeEventMode;
 import com.vaadin.ui.Table.ColumnHeaderMode;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
 
-@UIScoped
-public class SearchComponent extends CustomComponent {
+public abstract class BaseSearchComponent extends CustomComponent {
 
 	private static final long serialVersionUID = 242479147429347833L;
 
 	private VerticalLayout verticalLayout;
-	private Table links;
-	private TextField input;
+	protected Table links;
+	protected TextField input;
 
 	@Inject
 	private Logger LOGGER;
 
 	@Inject
-	private PersistenceGateway persistenceGatewayImpl;
+	protected PersistenceGateway persistenceGatewayImpl;
 
 	@PostConstruct
 	public void postConstruct() {
@@ -45,7 +42,9 @@ public class SearchComponent extends CustomComponent {
 		performSearch("");
 	}
 
-	public SearchComponent() {
+	protected abstract List<String> getLinkComponentNames();
+
+	public BaseSearchComponent() {
 		buildLayout();
 
 		// Search bar
@@ -57,8 +56,11 @@ public class SearchComponent extends CustomComponent {
 		links.addContainerProperty("id", String.class, null);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
-		links.addContainerProperty("edit", Component.class, null);
-		links.addContainerProperty("delete", Component.class, null);
+
+		List<String> linkButtonComponentNames = getLinkComponentNames();
+		for (String componentName : linkButtonComponentNames) {
+			links.addContainerProperty(componentName, Component.class, null);
+		}
 
 		links.setWidth("100%");
 		// TODO: Work on the column width/scaling
@@ -71,10 +73,10 @@ public class SearchComponent extends CustomComponent {
 		input.addTextChangeListener(event -> {
 			this.performSearch(event.getText());
 		});
-		
+
 	}
 
-	private void performSearch(String searchText) {
+	protected void performSearch(String searchText) {
 		loadLinks(searchText.trim());
 	}
 
@@ -85,43 +87,40 @@ public class SearchComponent extends CustomComponent {
 		if (searchText.isEmpty()) {
 			searchLinks = persistenceGatewayImpl.getAllLinks();
 		} else {
-//			LOGGER.trace("Searching for:" + searchText);
 			searchLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, searchText);
 		}
 
-//		LOGGER.error("Found " + searchLinks.size() + " links");
-
 		for (int i = 0; i < searchLinks.size(); i++) {
-//			LOGGER.error("Found link " + i + " " + searchLinks.get(i).toString());
 			Object[] tableValues = convertLinkToTableData(searchLinks.get(i));
-			links.addItem(tableValues, searchLinks.get(i).getUuid()); // Use the UUID for  objectId, e.g. to delete the row later
+			links.addItem(tableValues, searchLinks.get(i).getUuid()); // Use the
+																		// UUID
+																		// for
+																		// objectId,
+																		// e.g.
+																		// to
+																		// delete
+																		// the
+																		// row
+																		// later
 		}
 	}
+
+	protected abstract List<Component> getLinkComponents(Link link);
 
 	private Object[] convertLinkToTableData(Link link) {
 		// Create a Vaading HTTP clickable link
 		com.vaadin.ui.Link externalLink = new com.vaadin.ui.Link(link.getUrl(), new ExternalResource(link.getUrl()));
 		externalLink.setTargetName("_blank"); // Open in new Tab
 
-		// Edit Button
-		Button editButton = new Button();
-		editButton.addClickListener(event -> {
-			EditLinkWindow editLinkWindow = new EditLinkWindow(persistenceGatewayImpl, link.getUuid());
-			editLinkWindow.setSaveCallback(in -> performSearch(input.getValue()));
-			UI.getCurrent().addWindow(editLinkWindow);
-		});
-		editButton.setCaption("edit");
+		List<Component> linkComponents = getLinkComponents(link);
 
-		// Delete button
-		Button deleteButton = new Button();
-		deleteButton.addClickListener(event -> {
-			persistenceGatewayImpl.deleteLink(link.getUuid());
-			this.links.removeItem(link.getUuid());
-		});
-		deleteButton.setCaption("delete");
+		ArrayList<Object> list = new ArrayList<Object>();
+		list.add(link.getUuid());
+		list.add(link.getName());
+		list.add(externalLink);
 
-		// Create the table row object array
-		return new Object[] { link.getUuid(), link.getName(), externalLink, editButton, deleteButton };
+		list.addAll(linkComponents);
+		return list.toArray();
 	}
 
 	private void buildLayout() {
