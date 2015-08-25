@@ -20,12 +20,14 @@ public class SelectTagWindow extends Window {
 
 	private PersistenceGateway persistence;
 
+	private final Set<String> initialSelectedTagUUIDs = new HashSet<String>();
 	private final Set<String> selectedTagUUIDs = new HashSet<String>();
 
 	private VerticalLayout verticalLayout;
 	private Table tagTable;
 
 	private Button saveButton;
+	private Button cancelButton;
 
 	/**
 	 * Open the window to create a new link
@@ -50,6 +52,7 @@ public class SelectTagWindow extends Window {
 		setHeight("80%");
 
 		if (selectedTagUUIDs != null) {
+			this.initialSelectedTagUUIDs.addAll(selectedTagUUIDs);
 			this.selectedTagUUIDs.addAll(selectedTagUUIDs);
 		}
 
@@ -69,7 +72,7 @@ public class SelectTagWindow extends Window {
 		tagTable.addContainerProperty("name", String.class, null);
 		tagTable.addContainerProperty("description", String.class, null);
 		tagTable.addContainerProperty("isSelected", Component.class, null);
-		
+
 		verticalLayout.addComponent(tagTable);
 
 		// Button to okay
@@ -78,13 +81,20 @@ public class SelectTagWindow extends Window {
 			close();
 		});
 		verticalLayout.addComponent(saveButton);
+
+		// Button to cancel
+		cancelButton = new Button("Cancel");
+		cancelButton.addClickListener(event -> {
+			this.selectedTagUUIDs.clear();
+			this.selectedTagUUIDs.addAll(initialSelectedTagUUIDs);
+			close();
+		});
+		verticalLayout.addComponent(cancelButton);
 	}
-	
-	
-	
+
 	private void loadData() {
 		List<Tag> allTags = persistence.getAllTags();
-		
+
 		for (Tag tag : allTags) {
 			Object[] tableRow = convertTagToTableRow(tag);
 			tagTable.addItem(tableRow, tag.getUuid());
@@ -116,10 +126,10 @@ public class SelectTagWindow extends Window {
 	public Set<String> getSelectedTagUUIDs() {
 		HashSet<String> result = new HashSet<String>();
 		result.addAll(selectedTagUUIDs);
-		
+
 		return result;
 	}
-	
+
 	public PersistenceGateway getPersistence() {
 		return persistence;
 	}
