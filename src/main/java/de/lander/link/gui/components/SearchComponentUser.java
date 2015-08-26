@@ -1,7 +1,6 @@
 package de.lander.link.gui.components;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.vaadin.cdi.UIScoped;
@@ -11,6 +10,11 @@ import com.vaadin.ui.UI;
 
 import de.lander.persistence.entities.Link;
 
+/**
+ * Main user search component used in the main screen.
+ * @author max
+ *
+ */
 @UIScoped
 public class SearchComponentUser extends SearchComponentBase {
 
