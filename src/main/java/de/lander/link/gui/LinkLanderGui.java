@@ -11,7 +11,7 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import de.lander.link.gui.components.AdminComponent;
-import de.lander.link.gui.components.UserSearchComponent;
+import de.lander.link.gui.components.SearchComponentUser;
 
 @CDIUI("linklander-ui")
 @Theme("mytheme")
@@ -22,7 +22,7 @@ public class LinkLanderGui extends UI {
 	private TabSheet tabs;
 
 	@Inject
-	private UserSearchComponent searchTab;
+	private SearchComponentUser searchTab;
 	
 	@Inject 
 	private AdminComponent adminTab;

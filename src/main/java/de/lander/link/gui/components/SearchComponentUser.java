@@ -12,7 +12,7 @@ import com.vaadin.ui.UI;
 import de.lander.persistence.entities.Link;
 
 @UIScoped
-public class UserSearchComponent extends BaseSearchComponent {
+public class SearchComponentUser extends SearchComponentBase {
 
 	private static final long serialVersionUID = -7211735915211883666L;
 

@@ -20,7 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
 
-public abstract class BaseSearchComponent extends CustomComponent {
+public abstract class SearchComponentBase extends CustomComponent {
 
 	private static final long serialVersionUID = 242479147429347833L;
 
@@ -44,7 +44,7 @@ public abstract class BaseSearchComponent extends CustomComponent {
 
 	protected abstract List<String> getLinkComponentNames();
 
-	public BaseSearchComponent() {
+	public SearchComponentBase() {
 		buildLayout();
 
 		// Search bar
