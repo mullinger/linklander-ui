@@ -1,8 +1,8 @@
 package de.lander.link.gui.components;
 
-import java.util.HashSet;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
@@ -27,12 +27,21 @@ public class AdminComponent extends CustomComponent {
 
 	@Inject
 	private PersistenceGateway persistence;
-	
+
 	@Inject
 	private Logger LOGGER;
 
+	@Inject
+	private SearchComponentAdmin search;
+
 	public AdminComponent() {
 		buildLayout();
+	}
+
+	@PostConstruct
+	private void postConstruct() {
+		// Search Component
+		verticalLayout.addComponent(search);
 	}
 
 	private void buildLayout() {

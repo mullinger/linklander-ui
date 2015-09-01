@@ -557,63 +557,65 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	}
 
 	@Override
-	public void addTagToLink(final String linkName, final String tagName) {
-		Validate.notBlank(linkName);
-		Validate.notBlank(tagName);
-
-		// step 1: get existing tags
-		List<Tag> existingTags = searchTags(TagProperty.NAME, tagName);
-		List<Link> existingLinks = searchLinks(LinkProperty.NAME, linkName);
+	public void addTagToLink(final String linkUUID, final String tagUUID) {
+		Validate.notBlank(linkUUID);
+		Validate.notBlank(tagUUID);
 
 		try (Transaction tx = this.graphDb.beginTx()) {
-			for (Tag existingTag : existingTags) {
-				for (Link existingLink : existingLinks) {
-					this.cypher.execute(buildTaggingQuery(existingLink.getName(), existingTag.getName()));
-				}
-			}
+			//@formatter:off
+			String query = "MATCH "
+					+ "(link:" + Link.LABEL + " {" + Link.UUID + ": '" + linkUUID + "'}), "
+					+ "(tag:" + Tag.LABEL + " {" + Tag.UUID + ": '" + tagUUID + "'}) "
+					+ "CREATE (tag)-[:" + TAGGED + "]->(link)";
+			//@formatter:on
+			LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'", new Object[] { query, linkUUID,
+					tagUUID });
+			this.cypher.execute(query);
 
-			LOGGER.debug("Added tag to link: {}-[TAGGED]-{}", new Object[] { tagName, linkName });
+			LOGGER.debug("Added tag to link: {}-[TAGGED]-{}", new Object[] { tagUUID, linkUUID });
+			tx.success();
+		}
+	}
+
+	@Override
+	public void removeTagFromLink(final String linkUUID, final String tagUUID) {
+		Validate.notBlank(linkUUID);
+		Validate.notBlank(tagUUID);
+
+		try (Transaction tx = this.graphDb.beginTx()) {
+			//@formatter:off
+			String query = "MATCH "
+					+ "(link:" + Link.LABEL + " {" + Link.UUID + ": '" + linkUUID + "'})"
+					+ "<-[t:TAGGED]-"
+					+ "(tag:" + Tag.LABEL + " {" + Tag.UUID + ": '" + tagUUID + "'}) "
+					+ "DELETE t";
+			//@formatter:on
+
+			LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'", new Object[] { query, linkUUID,
+					tagUUID });
+			ExecutionResult executionResult = this.cypher.execute(query);
+			
+			LOGGER.debug(executionResult.dumpToString());
+			LOGGER.debug("Removed tag from link: {}-[TAGGED]->{}", new Object[] { linkUUID, tagUUID });
 			tx.success();
 		}
 	}
 
 	/**
-	 * Builds a cypher tagging query for a link
-	 *
-	 * @param linkName
-	 *            the name of the link
-	 * @param tagName
-	 *            the name of the tag
-	 * @return the query to create the tagging relationship
-	 */
-	private String buildTaggingQuery(final String linkName, final String tagName) {
-		String query = "MATCH "
-		// link
-				+ "(link:" + Link.LABEL + " {" + Link.NAME + ": '" + linkName + "'}), "
-				// tag
-				+ "(tag:" + Tag.LABEL + " {" + Tag.NAME + ": '" + tagName + "'}) "
-				// relationship
-				+ "CREATE (tag)-[:" + TAGGED + "]->(link)";
-
-		LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'", new Object[] { query, linkName, tagName });
-		return query;
-	}
-
-	/**
 	 * Retrieves all tags for a link
 	 *
-	 * @param linkName
-	 *            the name of the link
+	 * @param linkUUID
+	 *            the uuid of the link
 	 * @return the {@link Tag}s
 	 */
 	@Override
-	public List<Tag> getTagsForLink(final String linkName) {
-		Validate.notBlank(linkName);
+	public List<Tag> getTagsForLink(final String linkUUID) {
+		Validate.notBlank(linkUUID);
 
 		List<Tag> foundTags = new ArrayList<Tag>();
 		ExecutionResult execute = null;
 		try (Transaction tx = this.graphDb.beginTx()) {
-			execute = this.cypher.execute("MATCH (:Link {name: '" + linkName + "'})<-[:" + TAGGED
+			execute = this.cypher.execute("MATCH (:Link {uuid: '" + linkUUID + "'})<-[:" + TAGGED
 					+ "]-(tag:Tag) RETURN tag");
 			tx.success();
 

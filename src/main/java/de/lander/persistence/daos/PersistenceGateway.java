@@ -20,14 +20,14 @@ public interface PersistenceGateway {
 	 * Supported Link Types for CRUD operations
 	 */
 	enum LinkProperty {
-		NAME, URL, CLICK_COUNT, SCORE;
+		NAME, URL, CLICK_COUNT, SCORE, UUID;
 	}
 
 	/**
 	 * Supported Tag Types CRUD operations
 	 */
 	enum TagProperty {
-		NAME, CLICK_COUNT;
+		NAME, CLICK_COUNT, UUID;
 	}
 
 	/**
@@ -144,16 +144,14 @@ public interface PersistenceGateway {
 	// RELATIONS
 	// /////////////
 	/**
-	 * Tags a link with the given linkName with a tag<br>
-	 * NOTE: the parameters do not have to match exactly. They can also be
-	 * substrings of existing names of tag or links
+	 * Tags a link with the given linkUUID with a tag<br>
 	 * 
-	 * @param linkName
-	 *            the name of the link to tag (MANDATORY)
-	 * @param tagName
-	 *            the name of the tag to tag the link with (MANDATORY)
+	 * @param linkUUID
+	 *            the UUID of the link to tag (MANDATORY)
+	 * @param tagUUID
+	 *            the UUID of the tag to tag the link with (MANDATORY)
 	 */
-	void addTagToLink(String linkName, String tagName);
+	void addTagToLink(String linkUUID, String tagUUID);
 
 	// /////////////
 	// SEARCH
@@ -260,5 +258,8 @@ public interface PersistenceGateway {
 	 *            the value to set
 	 */
 	void setLinkPropertyValue(String linkUUID, String property, String value);
+
+	//TODO: Write JDOC
+	void removeTagFromLink(String linkUUID, String tagUUID);
 
 }

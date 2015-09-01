@@ -414,7 +414,6 @@ public class PersistenceGatewayImplTest {
 		assertEquals("Tag1", tagsForLink.get(0).getName());
 	}
 
-
 	@Test
 	public void shouldIncrementTheClickCountOfALink() throws Exception {
 		// == prepare ==
@@ -479,4 +478,35 @@ public class PersistenceGatewayImplTest {
 		assertThat(resultLink.getClicks(), is(0));
 		assertThat(resultLink.getScore(), is(9.8));
 	}
+
+	@Test
+	public void addAndRemoveTagFromLink() {
+		// == prepare ==
+		// Link
+		String linkName = "Neo4j-Tutorial";
+		String url = "http://neo4j.com/docs/stable/tutorials-java-embedded-hello-world.html";
+		String title = "Neo4j-Tutorial-Title";
+		String linkUUID = classUnderTest.addLink(linkName, url, title);
+
+		// Tag
+		String name = "Tag1";
+		String description = "description112sdsdds q2slkdsld";
+		String tagUUID = classUnderTest.addTag(name, description);
+
+		// Go
+		classUnderTest.addTagToLink(linkUUID, tagUUID);
+
+		// Verify
+		List<Tag> tagsForLink1 = classUnderTest.getTagsForLink(linkUUID);
+		assertEquals(1, tagsForLink1.size());
+
+		// Go
+		classUnderTest.removeTagFromLink(linkUUID, tagUUID);
+
+		// Verify
+		List<Tag> tagsForLink2 = classUnderTest.getTagsForLink(linkUUID);
+		assertEquals(0, tagsForLink2.size());
+
+	}
+
 }
