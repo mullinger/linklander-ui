@@ -73,11 +73,13 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	}
 
 	@Override
-	public void addLink(final String name, final String url, final String title) {
+	public String addLink(final String name, final String url, final String title) {
 		Validate.notBlank(name, "the name of the link is blank");
 		Validate.notBlank(url, "the url of the link is blank");
 		Validate.notNull(title, "the title of the link is null");
 
+		String uuid = null;
+		
 		Node node;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			node = this.graphDb.createNode();
@@ -87,7 +89,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 			node.setProperty(Link.TITLE, title);
 			node.setProperty(Link.CLICK_COUNT, 0);
 			node.setProperty(Link.SCORE, 0);
-			node.setProperty(Link.UUID, UUID.randomUUID().toString());
+			
+			uuid = UUID.randomUUID().toString();
+			node.setProperty(Link.UUID, uuid);
 			tx.success();
 			LOGGER.debug("Added link: name={}, url={}, title={}", new Object[] { name, url, title });
 		} catch (ConstraintViolationException cve) {
@@ -96,6 +100,8 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 					"Error on creating link with name=%s, url=%s, title=%s, because=%s", name, url, title,
 					cve.getMessage()));
 		}
+		
+		return uuid;
 
 	}
 
@@ -383,16 +389,19 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	}
 
 	@Override
-	public void addTag(final String name, final String description) {
+	public String addTag(final String name, final String description) {
 		Validate.notBlank(name, "the name of the tag is blank");
 		Validate.notBlank(description, "the description of the tag is blank");
 		Validate.isTrue(description.length() <= 255, "the description is longer than 255 chars");
 
+		String uuid = null;
+		
 		Node node;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			node = this.graphDb.createNode();
 			node.addLabel(Tag.LABEL);
-			node.setProperty(Tag.UUID, UUID.randomUUID().toString());
+			uuid = UUID.randomUUID().toString();
+			node.setProperty(Tag.UUID, uuid);
 			node.setProperty(Tag.NAME, name);
 			node.setProperty(Tag.DESCRIPTION, description);
 			node.setProperty(Tag.CLICK_COUNT, 0);
@@ -404,6 +413,8 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 					"Error on creating tag with name=%s, description=%s, because=%s", name, description,
 					cve.getMessage()));
 		}
+		
+		return uuid;
 	}
 
 	@Override

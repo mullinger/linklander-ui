@@ -58,8 +58,9 @@ public interface PersistenceGateway {
 	 *            the url (MANDATORY)
 	 * @param title
 	 *            the title of the weburl (Optional)
+	 * @return uuid of added link
 	 */
-	void addLink(String name, String url, String title);
+	String addLink(String name, String url, String title);
 
 	/**
 	 * Updates the given property of a link
@@ -108,8 +109,9 @@ public interface PersistenceGateway {
 	 *            the name (MANDATORY)
 	 * @param description
 	 *            the description (MANDATORY with max 255 chars)
+	 * @return uuid of added tag
 	 */
-	void addTag(String name, String description);
+	String addTag(String name, String description);
 
 	/**
 	 * Updates the given property of a tag
