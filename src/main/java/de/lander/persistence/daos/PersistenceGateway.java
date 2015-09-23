@@ -197,11 +197,11 @@ public interface PersistenceGateway {
 	/**
 	 * Returns all tags for a link
 	 * 
-	 * @param linkName
-	 *            the name of the link (MANDATORY)
+	 * @param linkUUID
+	 *            the UUID of the link (MANDATORY)
 	 * @return the tags or an empty list of tags if no such link was found
 	 */
-	List<Tag> getTagsForLink(final String linkName);
+	List<Tag> getTagsForLink(final String linkUUID);
 
 	// /////////////
 	// CLICKS

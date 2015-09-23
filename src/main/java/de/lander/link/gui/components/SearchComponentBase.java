@@ -19,6 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
+import de.lander.persistence.entities.Tag;
 
 /**
  * Base class for all search components Offers input field, result table,
@@ -107,6 +108,7 @@ public abstract class SearchComponentBase extends CustomComponent {
 		links.addContainerProperty("id", String.class, null);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
+		links.addContainerProperty("tags", String.class, null);
 
 		List<String> linkButtonComponentNames = getLinkComponentNames();
 		for (String componentName : linkButtonComponentNames) {
@@ -160,6 +162,13 @@ public abstract class SearchComponentBase extends CustomComponent {
 		list.add(link.getUuid());
 		list.add(link.getName());
 		list.add(externalLink);
+		
+		String tags = "";
+		List<Tag> tagsForLink = persistenceGatewayImpl.getTagsForLink(link.getUuid());
+		for (Tag tag : tagsForLink) {
+			tags += tag.getName() + ",";
+		}
+		list.add(tags);
 
 		list.addAll(linkComponents);
 
