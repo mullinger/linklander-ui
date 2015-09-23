@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -24,6 +25,7 @@ import com.vaadin.ui.VerticalLayout;
 import de.lander.link.gui.logic.SearchHit;
 import de.lander.link.gui.logic.SearchHitComparator;
 import de.lander.link.gui.logic.SearchProvider;
+import de.lander.link.gui.logic.AdvancedSearch.Advanced;
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
 import de.lander.persistence.entities.Tag;
@@ -50,13 +52,14 @@ public abstract class SearchComponentBase extends CustomComponent {
 	protected TextField input;
 	@Inject
 	protected PersistenceGateway persistenceGatewayImpl;
-	@Inject
+	@Inject @Advanced
 	private SearchProvider searchProvider;
 
 	@PostConstruct
 	public void postConstruct() {
 		// TODO: remove when no more testdata is needed
-		persistenceGatewayImpl.addLink("Name", "http://name.de", "name");
+		int nextInt = new Random().nextInt(10);
+		persistenceGatewayImpl.addLink("Name"+nextInt, "http://name.de", "name");
 		// Initialize table to show all links
 		performSearch("");
 	}

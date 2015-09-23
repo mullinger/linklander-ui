@@ -6,18 +6,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
-import org.apache.logging.log4j.Logger;
-
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
-import de.lander.persistence.entities.Tag;
 
 public class DefaultSearch implements SearchProvider {
 
 	@Inject
 	protected PersistenceGateway persistenceGatewayImpl;
-	@Inject
-	private Logger LOGGER;
 
 	public Set<SearchHit> performSearch(final String searchText) {
 		String mySearchText = searchText.trim();
@@ -31,8 +26,7 @@ public class DefaultSearch implements SearchProvider {
 
 		Set<SearchHit> result = new HashSet<SearchHit>();
 		for (Link link : searchLinks) {
-			List<Tag> tagsForLink = persistenceGatewayImpl.getTagsForLink(link.getUuid());
-			SearchHit hit = new SearchHit(link, 0.0, tagsForLink);
+			SearchHit hit = new SearchHit(link, 0.0);
 			result.add(hit);
 		}
 
