@@ -1,7 +1,11 @@
 package de.lander.link.gui.components;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -17,6 +21,9 @@ import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import de.lander.link.gui.logic.SearchHit;
+import de.lander.link.gui.logic.SearchHitComparator;
+import de.lander.link.gui.logic.SearchProvider;
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
 import de.lander.persistence.entities.Tag;
@@ -43,6 +50,8 @@ public abstract class SearchComponentBase extends CustomComponent {
 	protected TextField input;
 	@Inject
 	protected PersistenceGateway persistenceGatewayImpl;
+	@Inject
+	private SearchProvider searchProvider;
 
 	@PostConstruct
 	public void postConstruct() {
@@ -126,29 +135,23 @@ public abstract class SearchComponentBase extends CustomComponent {
 	}
 
 	protected void performSearch(String searchText) {
-		loadLinks(searchText.trim());
-	}
+		Set<SearchHit> searchResult = searchProvider.performSearch(searchText);
 
-	private void loadLinks(final String searchText) {
 		links.removeAllItems();
 
-		List<Link> searchLinks;
-		if (searchText.isEmpty()) {
-			searchLinks = persistenceGatewayImpl.getAllLinks();
-		} else {
-			searchLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, searchText);
-		}
+		List<SearchHit> sortedResult = searchResult.stream().sorted(SearchHitComparator.get())
+				.collect(Collectors.toList());
 
-		for (int i = 0; i < searchLinks.size(); i++) {
-			Object[] tableValues = convertLinkToTableData(searchLinks.get(i));
+		for (int i = 0; i < sortedResult.size(); i++) {
+			Object[] tableValues = convertLinkToTableData(sortedResult.get(i).getLink(), sortedResult.get(i).getTags());
 			// Use the UUID for objectId, e.g. to delete the row later
-			links.addItem(tableValues, searchLinks.get(i).getUuid());
+			links.addItem(tableValues, sortedResult.get(i).getLink().getUuid());
 		}
 	}
 
 	protected abstract List<Component> getLinkComponents(Link link);
 
-	private Object[] convertLinkToTableData(Link link) {
+	private Object[] convertLinkToTableData(Link link, Collection<Tag> tagsForLink) {
 		// Create a Vaading HTTP clickable link
 		com.vaadin.ui.Link externalLink = new com.vaadin.ui.Link(link.getUrl(), new ExternalResource(link.getUrl()));
 		externalLink.setTargetName("_blank"); // Open in new Tab, see docs
@@ -162,9 +165,8 @@ public abstract class SearchComponentBase extends CustomComponent {
 		list.add(link.getUuid());
 		list.add(link.getName());
 		list.add(externalLink);
-		
+
 		String tags = "";
-		List<Tag> tagsForLink = persistenceGatewayImpl.getTagsForLink(link.getUuid());
 		for (Tag tag : tagsForLink) {
 			tags += tag.getName() + ",";
 		}
