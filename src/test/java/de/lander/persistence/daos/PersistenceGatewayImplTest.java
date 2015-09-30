@@ -10,6 +10,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -507,6 +509,43 @@ public class PersistenceGatewayImplTest {
 		List<Tag> tagsForLink2 = classUnderTest.getTagsForLink(linkUUID);
 		assertEquals(0, tagsForLink2.size());
 
+	}
+
+	@Test
+	public void testSearchLinksForTagName() {
+		// == prepare ==
+		// Tag
+		String name = "Tag1";
+		String description = "description112sdsdds q2slkdsld";
+		String tagUUID = classUnderTest.addTag(name, description);
+
+		// Tag
+		String name2 = "Tag1isJustAPartOfName";
+		String description2 = "Biene Maja";
+		String tagUUID2 = classUnderTest.addTag(name2, description2);
+
+		// Link
+		{
+			String linkName = "Neo4j-Tutorial";
+			String url = "http://neo4j.com/docs/stable/tutorials-java-embedded-hello-world.html";
+			String title = "Neo4j-Tutorial-Title";
+			String linkUUID = classUnderTest.addLink(linkName, url, title);
+			classUnderTest.addTagToLink(linkUUID, tagUUID);
+			classUnderTest.addTagToLink(linkUUID, tagUUID2);
+		}
+
+		// Link
+		{
+			String linkName = "Neo4j-console";
+			String url = "http://neo4j.com/console";
+			String title = "Neo4j-Console";
+			String linkUUID = classUnderTest.addLink(linkName, url, title);
+			classUnderTest.addTagToLink(linkUUID, tagUUID);
+		}
+
+		// GO
+		Map<Tag, Set<Link>> searchLinksForTagName = classUnderTest.searchLinksForTagName("Tag1");
+		System.out.println(searchLinksForTagName);
 	}
 
 }

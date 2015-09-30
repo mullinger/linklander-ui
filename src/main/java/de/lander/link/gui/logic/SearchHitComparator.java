@@ -11,18 +11,18 @@ public class SearchHitComparator implements Comparator<SearchHit> {
 	@Override
 	public int compare(SearchHit h1, SearchHit h2) {
 		// 1) Sort by score
-		int scoreCompare = Double.compare(h1.getScore(), h2.getScore());
+		int scoreCompare = Double.compare(h2.getScore(), h1.getScore());
 		if (scoreCompare != 0) {
 			return scoreCompare;
 		}
 
 		// 2) Sort by Name
-		int nameCompare = h1.getLink().getName().compareTo(h2.getLink().getName());
+		int nameCompare = h2.getLink().getName().compareTo(h1.getLink().getName());
 		if (nameCompare != 0) {
 			return nameCompare;
 		}
 
 		// 3) Sort by UUID
-		return h1.getLink().getUuid().compareTo(h2.getLink().getUuid());
+		return h2.getLink().getUuid().compareTo(h1.getLink().getUuid());
 	}
 }

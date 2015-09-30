@@ -4,6 +4,8 @@
 package de.lander.persistence.daos;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import de.lander.persistence.entities.Link;
 import de.lander.persistence.entities.Tag;
@@ -261,5 +263,8 @@ public interface PersistenceGateway {
 
 	//TODO: Write JDOC
 	void removeTagFromLink(String linkUUID, String tagUUID);
+
+	//TODO: Write JDOC
+	Map<Tag, Set<Link>> searchLinksForTagName(String tagName);
 
 }

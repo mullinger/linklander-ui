@@ -4,7 +4,13 @@
 package de.lander.persistence.daos;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -22,7 +28,7 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.impl.util.StringLogger;
 
-import scala.collection.Iterator;
+import static scala.collection.JavaConversions.*;
 import de.lander.persistence.entities.Link;
 import de.lander.persistence.entities.Relationships;
 import de.lander.persistence.entities.Tag;
@@ -79,7 +85,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		Validate.notNull(title, "the title of the link is null");
 
 		String uuid = null;
-		
+
 		Node node;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			node = this.graphDb.createNode();
@@ -89,7 +95,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 			node.setProperty(Link.TITLE, title);
 			node.setProperty(Link.CLICK_COUNT, 0);
 			node.setProperty(Link.SCORE, 0);
-			
+
 			uuid = UUID.randomUUID().toString();
 			node.setProperty(Link.UUID, uuid);
 			tx.success();
@@ -100,7 +106,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 					"Error on creating link with name=%s, url=%s, title=%s, because=%s", name, url, title,
 					cve.getMessage()));
 		}
-		
+
 		return uuid;
 
 	}
@@ -209,7 +215,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		ExecutionResult execute = null;
 
 		execute = this.cypher.execute(sql);
-		Iterator<Node> links = execute.columnAs("link");
+		Iterator<Node> links = asJavaIterator(execute.columnAs("link"));
 		while (links.hasNext()) {
 			Node link = links.next();
 			return link;
@@ -240,8 +246,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		try (Transaction tx = this.graphDb.beginTx()) {
 			execute = this.cypher.execute(sql);
 
-			Iterator<Node> links = execute.columnAs("link"); // from return
-																// statement
+			Iterator<Node> links = asJavaIterator(execute.columnAs("link")); // from
+																				// return
+			// statement
 			while (links.hasNext()) {
 				Node link = links.next();
 				retrievedLinks.add(convert(link));
@@ -262,8 +269,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		try (Transaction tx = this.graphDb.beginTx()) {
 			execute = this.cypher.execute(sql);
 
-			Iterator<Node> tags = execute.columnAs("tag"); // from return
-															// statement
+			Iterator<Node> tags = asJavaIterator(execute.columnAs("tag")); // from
+																			// return
+			// statement
 			while (tags.hasNext()) {
 				Node tag = tags.next();
 				retrievedTags.add(convertTag(tag));
@@ -308,8 +316,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
-			Iterator<Node> links = execute.columnAs("link"); // from return
-																// statement
+			Iterator<Node> links = asJavaIterator(execute.columnAs("link")); // from
+																				// return
+			// statement
 			while (links.hasNext()) {
 				Node link = links.next();
 				retrievedLinks.add(convert(link));
@@ -395,7 +404,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		Validate.isTrue(description.length() <= 255, "the description is longer than 255 chars");
 
 		String uuid = null;
-		
+
 		Node node;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			node = this.graphDb.createNode();
@@ -413,7 +422,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 					"Error on creating tag with name=%s, description=%s, because=%s", name, description,
 					cve.getMessage()));
 		}
-		
+
 		return uuid;
 	}
 
@@ -479,6 +488,51 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	}
 
 	@Override
+	public Map<Tag, Set<Link>> searchLinksForTagName(final String tagName) {
+		Validate.notNull(tagName);
+
+		Map<Tag, Set<Link>> resultMap = new HashMap<Tag, Set<Link>>();
+
+		//@formatter:off
+		String sql = new StringBuilder(128).append("MATCH (tag:").append(Tag.LABEL)
+				.append(") -[:TAGGED]-> (link:"+Link.LABEL+") WHERE tag." + Tag.NAME + "  =~ '(?i).*").append(tagName).append(".*'")
+				.append(" RETURN  {t:tag, l:collect(link)} as hits")
+				.toString();
+		//@formatter:on
+
+		ExecutionResult result = null;
+		try (Transaction tx = this.graphDb.beginTx()) {
+			result = this.cypher.execute(sql);
+
+			// Return the wrapper structure. It is useless, remove it somehow if
+			// possible
+			Iterator<scala.collection.Map<Node, scala.collection.immutable.List<Node>>> hits = asJavaIterator(result
+					.columnAs("hits"));
+
+			// The wrapper stucture contains the objects we are interested in
+			while (hits.hasNext()) {
+				// First we extract the 'map key' with label 't' -> see cypher
+				// and convert it to TAG
+				Map<Node, scala.collection.immutable.List<Node>> next = asJavaMap(hits.next());
+				Tag tag = convertTag((Node) next.get("t"));
+
+				// Then we extract the 'map value' with label 'l' -> see cypher
+				// and convert it to set of LINK
+				HashSet<Link> links = new HashSet<Link>();
+				List<Node> linkJavaList = asJavaList(next.get("l"));
+				for (Node node : linkJavaList) {
+					Link link = convert(node);
+					links.add(link);
+				}
+				resultMap.put(tag, links);
+			}
+
+		}
+
+		return resultMap;
+	}
+
+	@Override
 	public List<Tag> searchTags(final TagProperty property, final String propertyValue) {
 		Validate.notNull(property);
 		Validate.notBlank(propertyValue);
@@ -486,7 +540,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		List<Tag> retrievedTags = new ArrayList<>();
 
 		String sql = new StringBuilder(128).append("MATCH (tag:").append(Tag.LABEL)
-				.append(") WHERE tag.{property}  =~ '.*").append(propertyValue).append(".*'").append(" RETURN tag")
+				.append(") WHERE tag.{property}  =~ '(?i).*").append(propertyValue).append(".*'").append(" RETURN tag")
 				.toString();
 
 		ExecutionResult execute = null;
@@ -499,14 +553,15 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 				throw new IllegalArgumentException("property '" + property.name() + "' is not supported");
 			}
 
-			Iterator<Node> tags = execute.columnAs("tag"); // from return
-															// statement
+			Iterator<Node> tags = asJavaIterator(execute.columnAs("tag")); // from
+																			// return
+			// statement
 			while (tags.hasNext()) {
-				Node link = tags.next();
-				String name = String.valueOf(link.getProperty(Tag.NAME));
-				String description = String.valueOf(link.getProperty(Tag.DESCRIPTION));
-				int clicks = Integer.valueOf(String.valueOf(link.getProperty(Tag.CLICK_COUNT)));
-				String uuid = (String) link.getProperty(Tag.UUID);
+				Node tag = tags.next();
+				String name = String.valueOf(tag.getProperty(Tag.NAME));
+				String description = String.valueOf(tag.getProperty(Tag.DESCRIPTION));
+				int clicks = Integer.valueOf(String.valueOf(tag.getProperty(Tag.CLICK_COUNT)));
+				String uuid = (String) tag.getProperty(Tag.UUID);
 
 				retrievedTags.add(new Tag(name, description, clicks, uuid));
 			}
@@ -568,8 +623,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 					+ "(tag:" + Tag.LABEL + " {" + Tag.UUID + ": '" + tagUUID + "'}) "
 					+ "CREATE (tag)-[:" + TAGGED + "]->(link)";
 			//@formatter:on
-			LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'", new Object[] { query, linkUUID,
-					tagUUID });
+			// LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'",
+			// new Object[] { query, linkUUID,
+			// tagUUID });
 			this.cypher.execute(query);
 
 			LOGGER.debug("Added tag to link: {}-[TAGGED]-{}", new Object[] { tagUUID, linkUUID });
@@ -594,7 +650,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 			LOGGER.debug("Build Tagging query=\"{}\" for link='{}' and tag='{}'", new Object[] { query, linkUUID,
 					tagUUID });
 			ExecutionResult executionResult = this.cypher.execute(query);
-			
+
 			LOGGER.debug(executionResult.dumpToString());
 			LOGGER.debug("Removed tag from link: {}-[TAGGED]->{}", new Object[] { linkUUID, tagUUID });
 			tx.success();
@@ -619,8 +675,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 					+ "]-(tag:Tag) RETURN tag");
 			tx.success();
 
-			Iterator<Node> tags = execute.columnAs("tag"); // from return
-															// statement
+			Iterator<Node> tags = asJavaIterator(execute.columnAs("tag")); // from
+																			// return
+			// statement
 			while (tags.hasNext()) {
 				Node tag = tags.next();
 				String name = String.valueOf(tag.getProperty(Tag.NAME));
