@@ -57,9 +57,6 @@ public abstract class SearchComponentBase extends CustomComponent {
 
 	@PostConstruct
 	public void postConstruct() {
-		// TODO: remove when no more testdata is needed
-		int nextInt = new Random().nextInt(10);
-		persistenceGatewayImpl.addLink("Name"+nextInt, "http://name.de", "name");
 		// Initialize table to show all links
 		performSearch("");
 	}
