@@ -290,6 +290,35 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		return new Tag(name, description, clicks, uuid);
 	}
 
+	
+	@Override
+	public List<Link> searchLinks(final String value) {
+		List<Link> retrievedLinks = new ArrayList<>();
+
+		String sql = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL)
+				.append(") WHERE link.{Link.NAME}  =~ '(?i).*").append(value).append(".*'")
+				.append(" OR link.{Link.URL}  =~ '(?i).*").append(value).append(".*'")
+				.append(" RETURN link").toString();
+
+		sql = sql.replace("{Link.URL}", Link.URL);
+		sql = sql.replace("{Link.NAME}", Link.NAME);
+		
+		ExecutionResult execute = null;
+		try (Transaction tx = this.graphDb.beginTx()) {
+			execute = cypher.execute(sql);
+			Iterator<Node> links = asJavaIterator(execute.columnAs("link")); // from
+																				// return
+			// statement
+			while (links.hasNext()) {
+				Node link = links.next();
+				retrievedLinks.add(convert(link));
+			}
+		}
+
+		return retrievedLinks;
+	}
+	
+	
 	@Override
 	public List<Link> searchLinks(final LinkProperty property, final String propertyValue) {
 		Validate.notNull(property);

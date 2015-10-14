@@ -267,4 +267,7 @@ public interface PersistenceGateway {
 	//TODO: Write JDOC
 	Map<Tag, Set<Link>> searchLinksForTagName(String tagName);
 
+	//TODO: Write JDOC
+	List<Link> searchLinks(String value);
+
 }

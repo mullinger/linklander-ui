@@ -56,7 +56,7 @@ public class AdvancedSearch implements SearchProvider {
 		// Otherwise perform search for each token
 		for (String token : tokens) {
 			// Step 1: search links
-			List<Link> tokenLinks = persistenceGatewayImpl.searchLinks(PersistenceGateway.LinkProperty.NAME, token);
+			List<Link> tokenLinks = persistenceGatewayImpl.searchLinks(token);
 			for (Link link : tokenLinks) {
 				boolean isAlreadyAdded = result.stream().anyMatch(s -> s.getLink().getUuid().equals(link.getUuid()));
 				if (isAlreadyAdded) {
