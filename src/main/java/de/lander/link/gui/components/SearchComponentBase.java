@@ -2,6 +2,7 @@ package de.lander.link.gui.components;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -52,7 +53,8 @@ public abstract class SearchComponentBase extends CustomComponent {
 	protected TextField input;
 	@Inject
 	protected PersistenceGateway persistenceGatewayImpl;
-	@Inject @Advanced
+	@Inject
+	@Advanced
 	private SearchProvider searchProvider;
 
 	@PostConstruct
@@ -137,7 +139,7 @@ public abstract class SearchComponentBase extends CustomComponent {
 	protected void doSearch() {
 		performSearch(input.getValue());
 	}
-	
+
 	protected void performSearch(String searchText) {
 		Set<SearchHit> searchResult = searchProvider.performSearch(searchText);
 
@@ -170,12 +172,19 @@ public abstract class SearchComponentBase extends CustomComponent {
 		list.add(link.getName());
 		list.add(externalLink);
 
-		String tags = "";
-		for (Tag tag : tagsForLink) {
-			tags += tag.getName() + ",";
+		// Add the tags, sorted alphabetically
+		List<String> tags = tagsForLink.stream().map(t -> t.getName()).collect(Collectors.toList());
+		Collections.sort(tags, String.CASE_INSENSITIVE_ORDER);
+		String output = "";
+		for (int i = 0; i < tags.size(); i++) {
+			if (i > 0) {
+				output += ", ";
+			}
+			output += tags.get(i);
 		}
-		list.add(tags);
+		list.add(output);
 
+		// Finally all components for the links
 		list.addAll(linkComponents);
 
 		return list.toArray();
