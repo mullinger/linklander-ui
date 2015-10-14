@@ -109,6 +109,11 @@ public class SearchComponentAdmin extends SearchComponentBase {
 						for (String removedTagUUID : removedTags) {
 							persistenceGatewayImpl.removeTagFromLink(linkUUID, removedTagUUID);
 						}
+						
+						//Update data
+						if (addedTags.size() > 0 || removedTags.size() > 0) {
+							doSearch();
+						}
 					}
 				});
 				

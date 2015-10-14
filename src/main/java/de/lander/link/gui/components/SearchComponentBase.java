@@ -134,6 +134,10 @@ public abstract class SearchComponentBase extends CustomComponent {
 
 	}
 
+	protected void doSearch() {
+		performSearch(input.getValue());
+	}
+	
 	protected void performSearch(String searchText) {
 		Set<SearchHit> searchResult = searchProvider.performSearch(searchText);
 
