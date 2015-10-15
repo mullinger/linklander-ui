@@ -3,13 +3,16 @@
  */
 package de.lander.persistence.daos;
 
+import static scala.collection.JavaConversions.asJavaIterator;
+import static scala.collection.JavaConversions.asJavaList;
+import static scala.collection.JavaConversions.asJavaMap;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,7 +31,6 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.impl.util.StringLogger;
 
-import static scala.collection.JavaConversions.*;
 import de.lander.persistence.entities.Link;
 import de.lander.persistence.entities.Relationships;
 import de.lander.persistence.entities.Tag;

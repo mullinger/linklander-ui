@@ -23,9 +23,7 @@ public class DatabaseFactory {
 	@Inject
 	public static transient Logger LOGGER;
 
-	private static final String NEO4J_STORE_DIRECTORY = "de.lander.storedir";
-	private static final String DB_PROPERTY_FILE = "db.properties";
-
+	
 	/**
 	 * Singleton of graph database.
 	 * Must not be created multiple times because only one process can read from the neo4j database file
@@ -67,10 +65,8 @@ public class DatabaseFactory {
 		LOGGER.debug("bean.stereotypes " + bean.getStereotypes());
 		LOGGER.debug("bean.types " + bean.getTypes());
 		
-		String storeDir = PropertiesLoader.readProperty(DB_PROPERTY_FILE,
-				NEO4J_STORE_DIRECTORY);
+		String storeDir = PropertiesLoader.getBaseDirectory() + "/db.neo4j/";
 		
-//		String storeDir = "lander.neo4j.data";
 		return new GraphDatabaseFactory()
 		.newEmbeddedDatabaseBuilder(storeDir)
 		.setConfig(GraphDatabaseSettings.nodestore_mapped_memory_size,
