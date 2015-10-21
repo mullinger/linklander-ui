@@ -115,8 +115,12 @@ public abstract class SearchComponentBase extends CustomComponent {
 		input.setInputPrompt("type to land a link...");
 		input.setTextChangeEventMode(TextChangeEventMode.LAZY);
 
+
+		links.setColumnCollapsingAllowed(true);
 		// Result table
 		links.addContainerProperty("id", String.class, null);
+		links.setColumnCollapsible("id", true);
+		links.setColumnCollapsed("id", true);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
 		links.addContainerProperty("tags", String.class, null);
@@ -128,7 +132,6 @@ public abstract class SearchComponentBase extends CustomComponent {
 
 		links.setWidth("100%");
 		// TODO: Work on the column width/scaling
-		links.setColumnWidth("id", 400);
 
 		links.setColumnHeaderMode(ColumnHeaderMode.HIDDEN);
 		links.setFooterVisible(false);

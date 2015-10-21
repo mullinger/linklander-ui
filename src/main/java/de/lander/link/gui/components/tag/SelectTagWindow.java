@@ -68,11 +68,14 @@ public class SelectTagWindow extends Window {
 		// Table
 		tagTable = new Table();
 
+		tagTable.setColumnCollapsingAllowed(true);
 		tagTable.addContainerProperty("id", String.class, null);
+		tagTable.setColumnCollapsed("id", true);
 		tagTable.addContainerProperty("name", String.class, null);
 		tagTable.addContainerProperty("description", String.class, null);
 		tagTable.addContainerProperty("isSelected", Component.class, null);
 
+		tagTable.setWidth("100%");
 		verticalLayout.addComponent(tagTable);
 
 		// Button to okay
