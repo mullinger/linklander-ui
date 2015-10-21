@@ -431,7 +431,6 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	@Override
 	public String addTag(final String name, final String description) {
 		Validate.notBlank(name, "the name of the tag is blank");
-		Validate.notBlank(description, "the description of the tag is blank");
 		Validate.isTrue(description.length() <= 255, "the description is longer than 255 chars");
 
 		String uuid = null;
