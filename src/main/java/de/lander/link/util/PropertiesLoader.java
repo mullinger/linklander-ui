@@ -55,7 +55,8 @@ public final class PropertiesLoader {
 //	}
 
 	public static final String getBaseDirectory() {
-		return System.getProperty(baseDirProperty, "~/.linkLander/");
+		String user = System.getProperty("user.name");
+		return System.getProperty(baseDirProperty, "/home/"+user+"/.linkLander/");
 	}
 
 	/**
