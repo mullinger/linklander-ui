@@ -195,6 +195,9 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		case URL:
 			links = this.graphDb.findNodesByLabelAndProperty(Link.LABEL, Link.URL, propertyValue);
 			break;
+		case UUID:
+			links = this.graphDb.findNodesByLabelAndProperty(Link.LABEL, Link.UUID, propertyValue);
+			break;
 		default:
 			throw new IllegalArgumentException("property={" + property + "} is not supported");
 		}
@@ -723,8 +726,8 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 	}
 
 	@Override
-	public void incrementLinkClick(final String linkName) {
-		updateLink(LinkProperty.CLICK_COUNT, linkName, linkName);
+	public void incrementLinkClick(final String linkUUID) {
+		updateLink(LinkProperty.CLICK_COUNT, linkUUID, linkUUID);
 	}
 
 	@Override

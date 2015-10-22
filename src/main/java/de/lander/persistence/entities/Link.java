@@ -3,6 +3,8 @@
  */
 package de.lander.persistence.entities;
 
+import java.io.Serializable;
+
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.Label;
 
@@ -12,9 +14,14 @@ import org.neo4j.graphdb.Label;
  * @author mvogel
  *
  */
-public class Link {
+public class Link implements Serializable {
 
-    public static final Label LABEL = DynamicLabel.label("Link");
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1742375200119847788L;
+	
+	public static final Label LABEL = DynamicLabel.label("Link");
     public static final String NAME = "name";
     public static final String TITLE = "title";
     public static final String URL = "url";
