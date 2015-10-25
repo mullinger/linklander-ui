@@ -9,16 +9,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
 
 import org.apache.logging.log4j.Logger;
 import org.vaadin.activelink.ActiveLink;
 import org.vaadin.activelink.ActiveLink.LinkActivatedEvent;
 import org.vaadin.activelink.ActiveLink.LinkActivatedListener;
-
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Page;
@@ -34,7 +31,6 @@ import com.vaadin.ui.Table.ColumnHeaderMode;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
-
 
 import de.lander.link.gui.logic.SearchHit;
 import de.lander.link.gui.logic.SearchHitComparator;
@@ -215,10 +211,14 @@ public abstract class SearchComponentBase extends CustomComponent {
 
 		HorizontalLayout layout = new HorizontalLayout(externalLink);
 		layout.addLayoutClickListener(event -> {
-			HorizontalLayout source = (HorizontalLayout)event.getSource();
-			com.vaadin.ui.Link sourceLink = (com.vaadin.ui.Link)source.getComponent(0);
-			String linkUUID = (String)sourceLink.getData();
-			System.out.println("Clicked link "+  linkUUID);
+			HorizontalLayout source = (HorizontalLayout) event.getSource();
+			com.vaadin.ui.Link sourceLink = (com.vaadin.ui.Link) source.getComponent(0);
+			String linkUUID = (String) sourceLink.getData();
+			try {
+				persistenceGatewayImpl.incrementLinkClick(linkUUID);
+			} catch (Exception e) {
+				LOGGER.error("Error incrementing link click count for link " + linkUUID, e);
+			}
 		});
 
 		return layout;

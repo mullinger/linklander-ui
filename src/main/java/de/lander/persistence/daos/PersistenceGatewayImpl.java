@@ -295,19 +295,18 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 		return new Tag(name, description, clicks, uuid);
 	}
 
-	
 	@Override
 	public List<Link> searchLinks(final String value) {
 		List<Link> retrievedLinks = new ArrayList<>();
 
 		String sql = new StringBuilder(128).append("MATCH (link:").append(Link.LABEL)
 				.append(") WHERE link.{Link.NAME}  =~ '(?i).*").append(value).append(".*'")
-				.append(" OR link.{Link.URL}  =~ '(?i).*").append(value).append(".*'")
-				.append(" RETURN link").toString();
+				.append(" OR link.{Link.URL}  =~ '(?i).*").append(value).append(".*'").append(" RETURN link")
+				.toString();
 
 		sql = sql.replace("{Link.URL}", Link.URL);
 		sql = sql.replace("{Link.NAME}", Link.NAME);
-		
+
 		ExecutionResult execute = null;
 		try (Transaction tx = this.graphDb.beginTx()) {
 			execute = cypher.execute(sql);
@@ -322,8 +321,7 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 
 		return retrievedLinks;
 	}
-	
-	
+
 	@Override
 	public List<Link> searchLinks(final LinkProperty property, final String propertyValue) {
 		Validate.notNull(property);
@@ -727,7 +725,16 @@ public class PersistenceGatewayImpl implements PersistenceGateway, Relationships
 
 	@Override
 	public void incrementLinkClick(final String linkUUID) {
-		updateLink(LinkProperty.CLICK_COUNT, linkUUID, linkUUID);
+		Node linkToUpdate;
+		try (Transaction tx = this.graphDb.beginTx()) {
+			linkToUpdate = retrieveLinkByExactProperty(LinkProperty.UUID, linkUUID);
+			int oldClickCount = Integer.parseInt(String.valueOf(linkToUpdate.getProperty(Link.CLICK_COUNT)));
+			int newClickCount = ++oldClickCount;
+			linkToUpdate.setProperty(Link.CLICK_COUNT, newClickCount);
+
+			LOGGER.debug("Increasing click count for link '" + linkUUID + "' to: " + newClickCount);
+			tx.success();
+		}
 	}
 
 	@Override
