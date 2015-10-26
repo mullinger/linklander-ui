@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
@@ -32,6 +33,12 @@ public class SearchComponentAdmin extends SearchComponentBase {
 
 	private static final long serialVersionUID = -7211735915211883666L;
 
+	
+	public SearchComponentAdmin() {
+		super();
+		setColumnVisibility("clickCount", true);
+	}
+	
 	@Inject
 	private Logger LOGGER;
 	

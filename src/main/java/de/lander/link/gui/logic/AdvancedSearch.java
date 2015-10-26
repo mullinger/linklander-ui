@@ -40,8 +40,9 @@ public class AdvancedSearch implements SearchProvider {
 	@Inject
 	private Logger LOGGER;
 
-	public Set<SearchHit> performSearch(final String searchText) {
-		searchText.hashCode(); // Simple NPE check
+	public Set<SearchHit> performSearch(final String searchTextInput) {
+		searchTextInput.hashCode(); // Simple NPE check
+		String searchText = searchTextInput.trim();
 
 		Set<String> tokens = analyzeSearchText(searchText);
 		Set<SearchHit> result = new HashSet<SearchHit>();

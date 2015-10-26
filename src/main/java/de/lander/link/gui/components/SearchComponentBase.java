@@ -3,9 +3,7 @@ package de.lander.link.gui.components;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,10 +30,10 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.BaseTheme;
 
+import de.lander.link.gui.logic.AdvancedSearch.Advanced;
 import de.lander.link.gui.logic.SearchHit;
 import de.lander.link.gui.logic.SearchHitComparator;
 import de.lander.link.gui.logic.SearchProvider;
-import de.lander.link.gui.logic.AdvancedSearch.Advanced;
 import de.lander.persistence.daos.PersistenceGateway;
 import de.lander.persistence.entities.Link;
 import de.lander.persistence.entities.Tag;
@@ -127,11 +125,12 @@ public abstract class SearchComponentBase extends CustomComponent {
 		links.setColumnCollapsingAllowed(true);
 		// Result table
 		links.addContainerProperty("id", String.class, null);
-		links.setColumnCollapsible("id", true);
-		links.setColumnCollapsed("id", true);
+		setColumnVisibility("id", false);
 		links.addContainerProperty("name", String.class, null);
 		links.addContainerProperty("link", Component.class, null);
 		links.addContainerProperty("tags", String.class, null);
+		links.addContainerProperty("clickCount", String.class, null);
+		setColumnVisibility("clickCount", false);
 
 		List<String> linkButtonComponentNames = getLinkComponentNames();
 		for (String componentName : linkButtonComponentNames) {
@@ -145,6 +144,11 @@ public abstract class SearchComponentBase extends CustomComponent {
 		links.setFooterVisible(false);
 		links.setVisible(true);
 
+	}
+	
+	protected void setColumnVisibility(String id, boolean isVisible) {
+		links.setColumnCollapsible(id, true);
+		links.setColumnCollapsed(id, !isVisible);
 	}
 
 	protected void doSearch() {
@@ -195,6 +199,8 @@ public abstract class SearchComponentBase extends CustomComponent {
 			output += tags.get(i);
 		}
 		list.add(output);
+		
+		list.add(linkEntity.getClicks()+"");
 
 		// Finally all components for the links
 		list.addAll(linkComponents);
